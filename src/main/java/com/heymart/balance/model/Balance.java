@@ -11,6 +11,9 @@ public abstract class Balance {
     private UUID id;
     private Double balance;
 
-    public Balance() {}
+    public Balance() {
+        this.id = UUID.randomUUID();
+        this.balance = 0.0;
+    }
 }
 

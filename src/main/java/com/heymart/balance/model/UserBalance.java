@@ -15,4 +15,13 @@ public class UserBalance extends Balance {
             owner = user;
         }
     }
+
+    public UserBalance(User user, double balance) {
+        if (user == null) {
+            throw new IllegalArgumentException();
+        } else {
+            this.owner = user;
+            super.setBalance(balance);
+        }
+    }
 }
