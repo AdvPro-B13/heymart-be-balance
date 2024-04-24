@@ -7,4 +7,12 @@ import lombok.Setter;
 @Setter
 public class UserBalance extends Balance {
     private User owner;
+
+    public UserBalance(User user) {
+        if (user == null) {
+            throw new IllegalArgumentException();
+        } else {
+            owner = user;
+        }
+    }
 }

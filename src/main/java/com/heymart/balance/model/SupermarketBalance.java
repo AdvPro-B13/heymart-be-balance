@@ -7,4 +7,12 @@ import lombok.Setter;
 @Setter
 public class SupermarketBalance extends Balance {
     private Supermarket owner;
+
+    public SupermarketBalance(Supermarket supermarket) {
+        if (supermarket == null) {
+            throw new IllegalArgumentException();
+        } else {
+            this.owner = supermarket;
+        }
+    }
 }
