@@ -1,10 +1,9 @@
 package com.heymart.balance.repository;
 
 import com.heymart.balance.model.*;
-import net.bytebuddy.implementation.bind.annotation.Super;
-import org.apache.tomcat.util.buf.UEncoder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import com.heymart.balance.repository.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class BalanceRepositoryTest {
     UserBalanceRepository userBalanceRepository;
-    SupermarketbalanceRepository supermarketbalanceRepository;
+    SupermarketBalanceRepository supermarketbalanceRepository;
 
     List<Balance> balances;
 
@@ -60,7 +59,7 @@ public class BalanceRepositoryTest {
         UserBalance targetUB = userBalanceRepository.findById(newUB.getId());
         assertEquals(newUB, targetUB);
 
-        SupermarketBalance targetSB = supermarketbalanceRepository.findbyId(newSB.getId());
+        SupermarketBalance targetSB = supermarketbalanceRepository.findById(newSB.getId());
         assertEquals(newSB, targetSB);
     }
 
@@ -79,7 +78,7 @@ public class BalanceRepositoryTest {
         UserBalance targetUB = userBalanceRepository.findById(newUB1.getId());
         assertEquals(newUB1, targetUB);
 
-        SupermarketBalance targetSB = supermarketbalanceRepository.findbyId(newSB1.getId());
+        SupermarketBalance targetSB = supermarketbalanceRepository.findById(newSB1.getId());
         assertEquals(newSB1, targetSB);
     }
 
@@ -87,18 +86,18 @@ public class BalanceRepositoryTest {
     void testFindByIdIfIdFound() {
         for (Balance balance : balances) {
             if (balance instanceof UserBalance) {
-                userBalanceRepository.save(balance);
+                userBalanceRepository.save((UserBalance) balance);
             } else if (balance instanceof SupermarketBalance) {
-                supermarketbalanceRepository.save(balance);
+                supermarketbalanceRepository.save((SupermarketBalance) balance);
             }
         }
 
         SupermarketBalance targetSB = (SupermarketBalance) balances.get(4);
-        SupermarketBalance findSBResult = supermarketbalanceRepository.findById(target.getId());
+        SupermarketBalance findSBResult = supermarketbalanceRepository.findById(targetSB.getId());
         assertEquals(targetSB, findSBResult);
 
         UserBalance targetUB = (UserBalance) balances.get(1);
-        UserBalance findUBResult = userBalanceRepository.findById(target.getId());
+        UserBalance findUBResult = userBalanceRepository.findById(targetUB.getId());
         assertEquals(targetUB, findUBResult);
     }
 
@@ -106,14 +105,14 @@ public class BalanceRepositoryTest {
     void testFindByIdIfIdNotFound() {
         for (Balance balance : balances) {
             if (balance instanceof UserBalance) {
-                userBalanceRepository.save(balance);
+                userBalanceRepository.save((UserBalance) balance);
             } else if (balance instanceof SupermarketBalance) {
-                supermarketbalanceRepository.save(balance);
+                supermarketbalanceRepository.save((SupermarketBalance) balance);
             }
         }
 
         SupermarketBalance targetSB = new SupermarketBalance(new Supermarket("keiramart"));
-        SupermarketBalance findSBResult = userBalanceRepository.findById(targetSB.getId());
+        SupermarketBalance findSBResult = supermarketbalanceRepository.findById(targetSB.getId());
         assertNull(findSBResult);
 
         UserBalance targetUB = new UserBalance(new User("keira"));
