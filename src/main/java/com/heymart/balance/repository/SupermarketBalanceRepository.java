@@ -1,10 +1,13 @@
 package com.heymart.balance.repository;
 
 import com.heymart.balance.model.*;
+import org.springframework.stereotype.Repository;
+
 import java.util.List;
 import java.util.ArrayList;
 import java.util.UUID;
 
+@Repository
 public class SupermarketBalanceRepository {
 
     private final List<SupermarketBalance> SupermarketBalances = new ArrayList<>();

@@ -7,16 +7,11 @@ import com.heymart.balance.model.UserBalance;
 import com.heymart.balance.repository.SupermarketBalanceRepository;
 import com.heymart.balance.repository.UserBalanceRepository;
 
-import net.bytebuddy.implementation.bind.annotation.Super;
-
-//import com.heymart.balance.service.UserBalanceServiceImpl;
-//import com.heymart.balance.service.SupermarketBalanceServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.internal.matchers.Null;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -76,9 +71,11 @@ public class BalanceServiceImplTest {
 
         UserBalance UbResult = userBalanceService.createBalance(Ub);
         verify(userBalanceRepository, times(1)).save(Ub);
+        assertEquals(Ub, UbResult);
 
         SupermarketBalance SbResult = supermarketBalanceService.createBalance(Sb);
         verify(supermarketBalanceRepository, times(1)).save(Sb);
+        assertEquals(Sb, SbResult);
     }
 
     @Test
@@ -120,7 +117,7 @@ public class BalanceServiceImplTest {
         doReturn(null).when(supermarketBalanceRepository).findById(Sb.getId());
 
         assertNull(userBalanceService.findById(Ub.getId()));
-        assertNull(supermarketBalanceService.findById(Sb.getId()))
+        assertNull(supermarketBalanceService.findById(Sb.getId()));
     }
 
     @Test
