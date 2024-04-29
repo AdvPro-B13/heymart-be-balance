@@ -46,9 +46,11 @@ public class BalanceTest {
     void testCreateBalanceEmptyOwner() {
         assertThrows(IllegalArgumentException.class, () -> {
             UserBalance newBalance = new UserBalance(null);
+            newBalance.getId();
         });
         assertThrows(IllegalArgumentException.class, () -> {
             SupermarketBalance newBalance = new SupermarketBalance(null);
+            newBalance.getId();
         });
     }
 }
