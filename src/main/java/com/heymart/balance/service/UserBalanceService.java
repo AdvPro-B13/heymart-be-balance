@@ -4,7 +4,7 @@ import java.util.UUID;
 
 import com.heymart.balance.model.UserBalance;
 
-public interface UserbalanceService {
+public interface UserBalanceService {
     public UserBalance createBalance(UserBalance balance);
     public UserBalance findById(UUID id);
     public UserBalance topup(UserBalance balance, double amount);

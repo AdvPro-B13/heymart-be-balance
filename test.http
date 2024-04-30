@@ -1,0 +1,19 @@
+POST http://localhost:8080/api/user-balance/keira/
+
+GET http://localhost:8080/api/user-balance/d4fff456-2665qfwfsadgafbcfbffec4eb6/
+
+GET http://localhost:8080/api/user-balance/d4fff456-2665-4191-b5f5-bcfbffec4eb6/
+
+PUT http://localhost:8080/api/user-balance/d4fff456-2665-4191-b5f5-bcfbffec4eb6/topup/ HTTP/1.1
+Content-Type: application/json
+
+{
+    "amount" : "5000.0"
+}
+
+PUT http://localhost:8080/api/user-balance/d4fff456-2665-4191-b5f5-bcfbffec4eb6/withdraw/ HTTP/1.1
+Content-Type: application/json
+
+{
+    "amount" : "4000.0"
+}

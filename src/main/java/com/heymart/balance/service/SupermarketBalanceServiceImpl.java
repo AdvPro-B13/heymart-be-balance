@@ -9,7 +9,7 @@ import com.heymart.balance.model.SupermarketBalance;
 import com.heymart.balance.repository.SupermarketBalanceRepository;
 
 @Service
-public class SupermarketBalanceServiceImpl implements SupermarketBalanceService{
+public class SupermarketBalanceServiceImpl implements SupermarketBalanceService {
     @Autowired
     private SupermarketBalanceRepository supermarketBalanceRepository;
 
