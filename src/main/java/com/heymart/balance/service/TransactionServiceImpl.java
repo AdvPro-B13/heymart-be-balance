@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-public class TransactionServiceImpl {
+public class TransactionServiceImpl implements TransactionService{
 
     @Autowired
     private TransactionRepository transactionRepository;

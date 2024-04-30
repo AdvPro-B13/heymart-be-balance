@@ -17,3 +17,16 @@ Content-Type: application/json
 {
     "amount" : "4000.0"
 }
+
+
+GET http://localhost:8080/api/transaction/item/c43a946a-bdb9-44d9-84d2-70f24c17885e/ HTTP/1.1
+
+POST http://localhost:8080/api/transaction/owner/c43a946a-bdb9-44d9-84d2-70f24c17885e/ HTTP/1.1
+Content-Type: application/json
+
+{
+    "amount" : "5000.0",
+    "transactionType": "TOPUP"
+}
+
+GET http://localhost:8080/api/transaction/owner/c43a946a-bdb9-44d9-84d2-70f24c17885e/ HTTP/1.1
