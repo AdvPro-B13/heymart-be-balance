@@ -46,11 +46,11 @@ public class TransactionTest {
         Transaction transaction = new Transaction(ownerId, transactionDate, amount, transactionType);
 
         assertAll("Constructor",
+            () -> assertNotNull(transaction.getId()),
             () -> assertNotNull(transaction.getOwnerId()),
             () -> assertNotNull(transaction.getTransactionDate()),
             () -> assertEquals(200.00, transaction.getAmount()),
-            () -> assertEquals(Transaction.TransactionType.WITHDRAWAL, transaction.getTransactionType()),
-            () -> assertNull(transaction.getId()) // ID is null until saved or explicitly set
+            () -> assertEquals(Transaction.TransactionType.WITHDRAWAL, transaction.getTransactionType())
         );
     }
 }
