@@ -24,6 +24,7 @@ public class Transaction {
     }
 
     public Transaction(UUID ownerId, Date transactionDate, double amount, TransactionType transactionType) {
+        this.id = UUID.randomUUID();
         this.ownerId = ownerId;
         this.transactionDate = transactionDate;
         this.amount = amount;
