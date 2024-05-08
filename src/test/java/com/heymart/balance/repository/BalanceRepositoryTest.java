@@ -118,4 +118,38 @@ public class BalanceRepositoryTest {
         UserBalance findUBResult = userBalanceRepository.findById(targetUB.getId());
         assertNull(findUBResult);
     }
+
+    @Test
+    void testFindByOwnerIdFound() {
+        UserBalance targetUB = (UserBalance) balances.get(2);
+        SupermarketBalance targetSB = (SupermarketBalance) balances.get(5);
+
+        for (Balance balance : balances) {
+            if (balance instanceof UserBalance) {
+                userBalanceRepository.save((UserBalance) balance);
+            } else if (balance instanceof SupermarketBalance) {
+                supermarketbalanceRepository.save((SupermarketBalance) balance);
+            }
+        }
+
+        assertEquals(targetUB, userBalanceRepository.findByUserId(targetUB.getOwner().getId()));
+        assertEquals(targetSB, supermarketbalanceRepository.findBySupermarketId(targetSB.getOwner().getId()));
+    }
+
+    @Test
+    void testFindByOwnerIdNotFound() {
+        User dummyUser = new User("keira");
+        Supermarket dummySupermarket = new Supermarket("KeiraMart");
+
+        for (Balance balance : balances) {
+            if (balance instanceof UserBalance) {
+                userBalanceRepository.save((UserBalance) balance);
+            } else if (balance instanceof SupermarketBalance) {
+                supermarketbalanceRepository.save((SupermarketBalance) balance);
+            }
+        }
+
+        assertNull(userBalanceRepository.findByUserId(dummyUser.getId()));
+        assertNull(supermarketbalanceRepository.findBySupermarketId(dummySupermarket.getId()));
+    }
 }
