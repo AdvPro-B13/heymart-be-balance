@@ -35,6 +35,16 @@ public class UserBalanceRepository {
         return null;
     }
 
+    public UserBalance findByUserId(UUID uid) {
+        for (UserBalance savedUserBalance : UserBalances) {
+            if (savedUserBalance.getOwner().getId().equals(uid)) {
+                return savedUserBalance;
+            }
+        }
+
+        return null;
+    }
+
     public List<UserBalance> getAllUserBalance() {
         return new ArrayList<>(UserBalances);
     }

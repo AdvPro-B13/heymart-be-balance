@@ -35,6 +35,16 @@ public class SupermarketBalanceRepository {
         return null;
     }
 
+    public SupermarketBalance findBySupermarketId(UUID uid) {
+        for (SupermarketBalance savedSupermarketBalance : SupermarketBalances) {
+            if (savedSupermarketBalance.getOwner().getId().equals(uid)) {
+                return savedSupermarketBalance;
+            }
+        }
+
+        return null;
+    }
+
     public List<SupermarketBalance> getAllSupermarketBalance() {
         return new ArrayList<>(SupermarketBalances);
     }
