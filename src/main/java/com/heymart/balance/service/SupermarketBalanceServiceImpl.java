@@ -2,6 +2,7 @@ package com.heymart.balance.service;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -37,28 +38,37 @@ public class SupermarketBalanceServiceImpl implements SupermarketBalanceService 
     public SupermarketBalance findBySupermarketId(UUID id) {
         return supermarketBalanceRepository.findBySupermarketId(id);
     }
-    
-    public SupermarketBalance topup(SupermarketBalance balance, double amount) {
-        if (supermarketBalanceRepository.findById(balance.getId()) == null) {
-            return null;
-        }
 
-        double cur = balance.getBalance();
-        balance.setBalance(cur + amount);
-        return balance;
+    @Async
+    public CompletableFuture<SupermarketBalance> topup(SupermarketBalance balance, double amount){
+        return CompletableFuture.supplyAsync(() -> {
+            SupermarketBalance cur = supermarketBalanceRepository.findById(balance.getId());
+            if (cur == null) {
+                return null;
+            }
+
+            double curbal = cur.getBalance();
+            cur.setBalance(curbal + amount);
+            return cur;
+        });
     }
 
-    public SupermarketBalance withdraw(SupermarketBalance balance, double amount) {
-        if (supermarketBalanceRepository.findById(balance.getId()) == null) {
-            return null;
-        }
+    @Async
+    public CompletableFuture<SupermarketBalance> withdraw(SupermarketBalance balance, double amount) {
+        return CompletableFuture.supplyAsync(() -> {
+            SupermarketBalance cur = supermarketBalanceRepository.findById(balance.getId());
 
-        if (balance.getBalance() < amount) {
-            return null;
-        }
+            if (cur == null) {
+                return null;
+            }
 
-        double cur = balance.getBalance();
-        balance.setBalance(cur - amount);
-        return balance;
+            if (balance.getBalance() < amount) {
+                return null;
+            }
+
+            double curbal = cur.getBalance();
+            cur.setBalance(curbal - amount);
+            return cur;
+        });
     }
 }
