@@ -94,6 +94,21 @@ public class BalanceServiceImplTest {
     }
 
     @Test
+    void testCreateBalanceIfOwnerAlreadyHasBalance() {
+        UserBalance Ub = userBalances.get(1);
+        SupermarketBalance Sb = supermarketBalances.get(1);
+
+        doReturn(Ub).when(userBalanceRepository).findByUserId(Ub.getOwner().getId());
+        doReturn(Sb).when(supermarketBalanceRepository).findBySupermarketId(Sb.getOwner().getId());
+
+        assertNull(userBalanceService.createBalance(Ub));
+        verify(userBalanceRepository, times(0)).save(Ub);
+
+        assertNull(supermarketBalanceService.createBalance(Sb));
+        verify(supermarketBalanceRepository, times(0)).save(Sb);
+    }
+
+    @Test
     void testFindByIdFound() {
         UserBalance Ub = userBalances.get(1);
         SupermarketBalance Sb = supermarketBalances.get(1);
@@ -120,6 +135,32 @@ public class BalanceServiceImplTest {
         assertNull(supermarketBalanceService.findById(Sb.getId()));
     }
 
+    @Test
+    void testFindByOwnerIdFound() {
+        UserBalance Ub = userBalances.get(1);
+        SupermarketBalance Sb = supermarketBalances.get(1);
+
+        doReturn(Ub).when(userBalanceRepository).findByUserId(Ub.getOwner().getId());
+        doReturn(Sb).when(supermarketBalanceRepository).findBySupermarketId(Sb.getOwner().getId());
+
+        UserBalance UbResult = userBalanceService.findByUserId(Ub.getOwner().getId());
+        assertEquals(Ub, UbResult);
+
+        SupermarketBalance SbResult = supermarketBalanceService.findBySupermarketId(Sb.getOwner().getId());
+        assertEquals(Sb, SbResult);
+    }
+
+    @Test
+    void testFindByOwnerIdNotFound() {
+        UserBalance Ub = userBalances.get(1);
+        SupermarketBalance Sb = supermarketBalances.get(1);
+
+        doReturn(null).when(userBalanceRepository).findByUserId(Ub.getOwner().getId());
+        doReturn(null).when(supermarketBalanceRepository).findBySupermarketId(Sb.getOwner().getId());
+
+        assertNull(userBalanceService.findByUserId(Ub.getOwner().getId()));
+        assertNull(supermarketBalanceService.findBySupermarketId(Sb.getOwner().getId()));
+    }
     @Test
     void testTopupSuccess() {
         UserBalance Ub = userBalances.get(1);
