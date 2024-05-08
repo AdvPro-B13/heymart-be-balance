@@ -15,8 +15,11 @@ public class SupermarketBalanceServiceImpl implements SupermarketBalanceService 
 
     public SupermarketBalance createBalance(SupermarketBalance balance) {
         if (supermarketBalanceRepository.findById(balance.getId()) == null) {
-            supermarketBalanceRepository.save(balance);
-            return balance;
+            if (supermarketBalanceRepository.findBySupermarketId(balance.getOwner().getId()) == null) {
+                supermarketBalanceRepository.save(balance);
+                return balance;
+            }
+            return null;
         };
 
         return null;
@@ -24,6 +27,10 @@ public class SupermarketBalanceServiceImpl implements SupermarketBalanceService 
 
     public SupermarketBalance findById(UUID id) {
         return supermarketBalanceRepository.findById(id);
+    }
+
+    public SupermarketBalance findBySupermarketId(UUID id) {
+        return supermarketBalanceRepository.findBySupermarketId(id);
     }
     
     public SupermarketBalance topup(SupermarketBalance balance, double amount) {

@@ -15,8 +15,11 @@ public class UserBalanceServiceImpl implements UserBalanceService {
 
     public UserBalance createBalance(UserBalance balance) {
         if (userBalanceRepository.findById(balance.getId()) == null) {
-            userBalanceRepository.save(balance);
-            return balance;
+            if (userBalanceRepository.findByUserId(balance.getOwner().getId()) == null) {
+                userBalanceRepository.save(balance);
+                return balance;
+            }
+            return null;
         };
 
         return null;
@@ -25,7 +28,9 @@ public class UserBalanceServiceImpl implements UserBalanceService {
     public UserBalance findById(UUID id) {
         return userBalanceRepository.findById(id);
     }
-    
+
+    public UserBalance findByUserId(UUID id) { return userBalanceRepository.findByUserId(id); }
+
     public UserBalance topup(UserBalance balance, double amount) {
         if (userBalanceRepository.findById(balance.getId()) == null) {
             return null;
