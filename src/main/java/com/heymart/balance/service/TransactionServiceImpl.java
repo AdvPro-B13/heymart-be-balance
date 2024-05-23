@@ -17,7 +17,12 @@ public class TransactionServiceImpl implements TransactionService{
 
     @Override
     public Transaction createTransaction(Transaction transaction) {
-        return transactionRepository.save(transaction);
+        Optional<Transaction> targetTransaction = transactionRepository.findById(transaction.getId());
+
+        if (targetTransaction.isEmpty()) {
+            return transactionRepository.save(transaction);
+        }
+        return null;
     }
 
     @Override
