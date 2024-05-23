@@ -41,16 +41,31 @@ public class TransactionTest {
         UUID ownerId = UUID.randomUUID();
         Date transactionDate = new Date();
         double amount = 200.00;
-        Transaction.TransactionType transactionType = Transaction.TransactionType.WITHDRAWAL;
+        Transaction.TransactionType withdrawalType = Transaction.TransactionType.WITHDRAWAL;
+        Transaction.TransactionType topupType = Transaction.TransactionType.TOPUP;
+        Transaction.OwnerType supermarketType = Transaction.OwnerType.SUPERMARKET;
+        Transaction.OwnerType userType = Transaction.OwnerType.USER;
 
-        Transaction transaction = new Transaction(ownerId, transactionDate, amount, transactionType);
+        Transaction transaction = new Transaction(ownerId, userType, transactionDate, amount, withdrawalType);
+        transaction.setId(UUID.randomUUID());
 
         assertAll("Constructor",
             () -> assertNotNull(transaction.getId()),
             () -> assertNotNull(transaction.getOwnerId()),
             () -> assertNotNull(transaction.getTransactionDate()),
             () -> assertEquals(200.00, transaction.getAmount()),
-            () -> assertEquals(Transaction.TransactionType.WITHDRAWAL, transaction.getTransactionType())
+            () -> assertEquals(withdrawalType, transaction.getTransactionType())
         );
+
+        Transaction transaction1 = new Transaction(ownerId, supermarketType, transactionDate, amount, topupType);
+        transaction1.setId(UUID.randomUUID());
+        assertAll("Constructor",
+                () -> assertNotNull(transaction1.getId()),
+                () -> assertNotNull(transaction1.getOwnerId()),
+                () -> assertNotNull(transaction1.getTransactionDate()),
+                () -> assertEquals(200.00, transaction1.getAmount()),
+                () -> assertEquals(topupType, transaction1.getTransactionType())
+        );
+
     }
 }

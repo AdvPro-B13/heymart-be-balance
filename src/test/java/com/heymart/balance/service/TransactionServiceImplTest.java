@@ -9,10 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -32,25 +29,27 @@ public class TransactionServiceImplTest {
     void setup() {
         transactions = new ArrayList<>();
 
+        Transaction.TransactionType withdrawalType = Transaction.TransactionType.WITHDRAWAL;
+        Transaction.TransactionType topupType = Transaction.TransactionType.TOPUP;
+        Transaction.OwnerType supermarketType = Transaction.OwnerType.SUPERMARKET;
+        Transaction.OwnerType userType = Transaction.OwnerType.USER;
+
         UUID ownerId1 = UUID.randomUUID();
         Date transactionDate1 = new Date();
         double amount1 = 200.00;
-        Transaction.TransactionType transactionType1 = Transaction.TransactionType.WITHDRAWAL;
-        Transaction transaction1 = new Transaction(ownerId1, transactionDate1, amount1, transactionType1);
+        Transaction transaction1 = new Transaction(ownerId1, userType, transactionDate1, amount1, withdrawalType);
         transactions.add(transaction1);
 
         UUID ownerId2 = UUID.randomUUID();
         Date transactionDate2 = new Date();
         double amount2 = 100.00;
-        Transaction.TransactionType transactionType2 = Transaction.TransactionType.TOPUP;
-        Transaction transaction2 = new Transaction(ownerId2, transactionDate2, amount2, transactionType2);
+        Transaction transaction2 = new Transaction(ownerId2, supermarketType, transactionDate2, amount2, topupType);
         transactions.add(transaction2);
 
         // transaction with same owner as transaction1
         Date transactionDate3 = new Date();
         double amount3 = 200.00;
-        Transaction.TransactionType transactionType3 = Transaction.TransactionType.WITHDRAWAL;
-        Transaction transaction3 = new Transaction(ownerId1, transactionDate3, amount3, transactionType3);
+        Transaction transaction3 = new Transaction(ownerId1, userType, transactionDate3, amount3, topupType);
         transactions.add(transaction3);
     }
 
@@ -68,8 +67,9 @@ public class TransactionServiceImplTest {
     @Test
     void testCreateTransactionIfAlreadyExists() {
         Transaction transaction = transactions.getFirst();
+        Optional<Transaction> found = Optional.of(transaction);
 
-        doReturn(transaction).when(transactionRepository).findById(transaction.getId());
+        doReturn(found).when(transactionRepository).findById(transaction.getId());
         assertNull(transactionService.createTransaction(transaction));
         verify(transactionRepository, times(0)).save(transaction);
     }
@@ -77,15 +77,17 @@ public class TransactionServiceImplTest {
     @Test
     void TestFindByIdFound() {
         Transaction transaction = transactions.getFirst();
+        Optional<Transaction> found = Optional.of(transaction);
 
-        doReturn(transaction).when(transactionRepository).findById(transaction.getId());
-        Transaction result = transactionService.findById(transaction.getId());
-        assertEquals(transaction, result);
+        doReturn(found).when(transactionRepository).findById(transaction.getId());
+        Optional<Transaction> result = transactionService.findById(transaction.getId());
+        assertEquals(transaction, result.get());
     }
 
     @Test
     void TestFindByIdNotFound() {
         Transaction transaction = transactions.getFirst();
+
 
         doReturn(null).when(transactionRepository).findById(transaction.getId());
         assertNull(transactionService.findById(transaction.getId()));

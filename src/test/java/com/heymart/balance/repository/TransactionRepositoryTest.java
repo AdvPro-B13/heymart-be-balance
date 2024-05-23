@@ -1,103 +1,102 @@
 package com.heymart.balance.repository;
 
+import com.heymart.balance.controller.BalanceController;
+import com.heymart.balance.model.Balance;
 import com.heymart.balance.model.Transaction;
+import jakarta.transaction.Transactional;
+import org.aspectj.lang.annotation.After;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ContextConfiguration;
 
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
+@DataJpaTest
 public class TransactionRepositoryTest {
-    TransactionRepository transactionRepository;
 
-    List<Transaction> transactions;
+    @Autowired
+    private TransactionRepository transactionRepository;
+    @Autowired
+    private BalanceRepository balanceRepository;
+    private UUID ownerId;
+    private Transaction transaction;
+    private Balance balance;
 
     @BeforeEach
-    void setup() {
-        transactions = new ArrayList<>();
-        transactionRepository = new TransactionRepository();
+    @Transactional
+    void setUp() {
+        ownerId = UUID.randomUUID();
+        Balance newBalance = new Balance(ownerId, Balance.OwnerType.USER);
+        balanceRepository.save(newBalance);
+        Optional<Balance> target = balanceRepository.findByOwnerId(ownerId);
+        balance = target.get();
 
-        UUID ownerId1 = UUID.randomUUID();
-        Date transactionDate1 = new Date();
-        double amount1 = 200.00;
-        Transaction.TransactionType transactionType1 = Transaction.TransactionType.WITHDRAWAL;
-        Transaction transaction1 = new Transaction(ownerId1, transactionDate1, amount1, transactionType1);
-        transactions.add(transaction1);
+        transaction = new Transaction();
+        transaction.setOwnerId(ownerId);
+        transaction.setOwnerType(Transaction.OwnerType.USER);
+        transaction.setAmount(100.0);
+        transaction.setTransactionType(Transaction.TransactionType.WITHDRAWAL);
+        transaction.setBalance(balance);
 
-        UUID ownerId2 = UUID.randomUUID();
-        Date transactionDate2 = new Date();
-        double amount2 = 100.00;
-        Transaction.TransactionType transactionType2 = Transaction.TransactionType.TOPUP;
-        Transaction transaction2 = new Transaction(ownerId2, transactionDate2, amount2, transactionType2);
-        transactions.add(transaction2);
+        transactionRepository.save(transaction);
+    }
 
-        // transaction with same owner as transaction1
-        Date transactionDate3 = new Date();
-        double amount3 = 200.00;
-        Transaction.TransactionType transactionType3 = Transaction.TransactionType.WITHDRAWAL;
-        Transaction transaction3 = new Transaction(ownerId1, transactionDate3, amount3, transactionType3);
-        transactions.add(transaction3);
+    @AfterEach
+    void tearDown() {
+        transactionRepository.deleteAll();
+        balanceRepository.deleteAll();
     }
 
     @Test
     void testSaveTransaction() {
-        Transaction newTransaction = transactions.getFirst();
+        List<Transaction> before = transactionRepository.findByOwnerId(ownerId);
+        assertThat(before).hasSize(1);
+
+        Transaction newTransaction = new Transaction();
+        newTransaction.setOwnerId(ownerId);
+        newTransaction.setOwnerType(Transaction.OwnerType.USER);
+        newTransaction.setAmount(100.0);
+        newTransaction.setTransactionType(Transaction.TransactionType.TOPUP);
+        newTransaction.setBalance(balance);
+
         transactionRepository.save(newTransaction);
-
-        Transaction savedTransaction = transactionRepository.findById(newTransaction.getId());
-        assertEquals(newTransaction, savedTransaction);
+        List<Transaction> after = transactionRepository.findByOwnerId(ownerId);
+        assertThat(after).hasSize(2);
     }
 
     @Test
-    void testFindByOwnerIdFound() {
-        UUID ownerId = transactions.getFirst().getOwnerId();
-        List<Transaction> result = new ArrayList<>();
-
-        for (Transaction transaction : transactions) {
-            transactionRepository.save(transaction);
-
-            if (transaction.getOwnerId().equals(ownerId)) {
-                result.add(transaction);
-            }
-        }
-
-        List<Transaction> searchedTransaction = transactionRepository.findByOwnerId(ownerId);
-        assertEquals(result, searchedTransaction);
-
+    void testFindById() {
+        Optional<Transaction> foundTransaction = transactionRepository.findById(transaction.getId());
+        assertThat(foundTransaction).isPresent();
+        assertThat(foundTransaction.get().getOwnerId()).isEqualTo(ownerId);
     }
 
     @Test
-    void testFindByOwnerIdNotFound() {
-        List<Transaction> result = new ArrayList<>();
-
-        for (Transaction transaction : transactions) {
-            transactionRepository.save(transaction);
-        }
-
-        List<Transaction> searchedTransaction = transactionRepository.findByOwnerId(UUID.randomUUID());
-        assertEquals(result, searchedTransaction);
+    void testFindAll() {
+        List<Transaction> transactions = transactionRepository.findAll();
+        assertThat(transactions).isNotEmpty();
+        assertThat(transactions).hasSize(1);
     }
 
     @Test
-    void testFindByIdFound() {
-        Transaction newTransaction = transactions.getFirst();
-        transactionRepository.save(newTransaction);
-
-        Transaction searchedTransaction = transactionRepository.findById(newTransaction.getId());
-        assertEquals(newTransaction, searchedTransaction);
+    void testFindByOwnerId() {
+        List<Transaction> transactions = transactionRepository.findByOwnerId(ownerId);
+        assertThat(transactions).isNotEmpty();
+        assertThat(transactions.get(0).getId()).isEqualTo(transaction.getId());
     }
 
     @Test
-    void testFindByIdNotFound() {
-        Transaction newTransaction = transactions.getFirst();
-        transactionRepository.save(newTransaction);
-
-        Transaction searchedTransaction = transactionRepository.findById(UUID.randomUUID());
-        assertNull(searchedTransaction);
+    void testDeleteTransaction() {
+        transactionRepository.delete(transaction);
+        Optional<Transaction> foundTransaction = transactionRepository.findById(transaction.getId());
+        assertThat(foundTransaction).isNotPresent();
     }
 }
