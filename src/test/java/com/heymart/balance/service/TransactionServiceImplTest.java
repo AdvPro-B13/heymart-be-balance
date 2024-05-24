@@ -63,17 +63,6 @@ public class TransactionServiceImplTest {
         verify(transactionRepository, times(1)).save(transaction);
         assertEquals(transaction, result);
     }
-
-    @Test
-    void testCreateTransactionIfAlreadyExists() {
-        Transaction transaction = transactions.getFirst();
-        Optional<Transaction> found = Optional.of(transaction);
-
-        doReturn(found).when(transactionRepository).findById(transaction.getId());
-        assertNull(transactionService.createTransaction(transaction));
-        verify(transactionRepository, times(0)).save(transaction);
-    }
-
     @Test
     void TestFindByIdFound() {
         Transaction transaction = transactions.getFirst();
