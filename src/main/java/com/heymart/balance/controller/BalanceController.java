@@ -101,20 +101,13 @@ public class BalanceController {
             UUID userId = UUID.fromString(checkoutDTO.getUserId());
             double amount = checkoutDTO.getAmount();
 
-            Optional<Balance> userBalance = service.findByOwnerId(userId);
-            Optional<Balance> supermarketBalance = service.findByOwnerId(supermarketId);
+           List<Balance> result = service.checkout(userId, supermarketId, amount);
 
-            if (userBalance.isPresent() && supermarketBalance.isPresent()) {
-                List<Balance> response = new ArrayList<>();
-                service.withdraw(userId, amount);
-                service.topUp(supermarketId, amount);
-                response.add(userBalance.get());
-                response.add(supermarketBalance.get());
-                return ResponseEntity.ok(response);
-            }
+           if (result.isEmpty()) {
+               return ResponseEntity.notFound().build();
+           }
 
-            return ResponseEntity.notFound().build();
-
+           return ResponseEntity.ok(result);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("invalid arguments");
         }

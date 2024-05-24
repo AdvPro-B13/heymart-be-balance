@@ -6,23 +6,17 @@ import com.heymart.balance.factory.UserBalanceFactory;
 import com.heymart.balance.model.Balance;
 import com.heymart.balance.model.Transaction;
 import com.heymart.balance.repository.BalanceRepository;
-import com.heymart.balance.repository.TransactionRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.AutoConfigureOrder;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 @Service
 public class BalanceServiceImpl implements BalanceService{
-
-//    @Autowired
-//    BalanceRepository balanceRepository;
-//    @Autowired
-//    TransactionService transactionService;
 
     private final BalanceRepository balanceRepository;
     private final TransactionService transactionService;
@@ -96,5 +90,21 @@ public class BalanceServiceImpl implements BalanceService{
                 throw new IllegalArgumentException("Insufficient funds");
             }
         });
+    }
+
+    @Transactional
+    public List<Balance> checkout(UUID userId, UUID supermarketId, double amount) {
+        Optional<Balance> userBalance = balanceRepository.findByOwnerId(userId);
+        Optional<Balance> supermarketBalance = balanceRepository.findByOwnerId(supermarketId);
+        if (userBalance.isPresent() && supermarketBalance.isPresent()) {
+            List<Balance> response = new ArrayList<>();
+            this.withdraw(userId, amount);
+            this.topUp(supermarketId, amount);
+            response.add(userBalance.get());
+            response.add(supermarketBalance.get());
+            return response;
+        }
+
+        return new ArrayList<>();
     }
 }
