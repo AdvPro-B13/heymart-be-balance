@@ -14,10 +14,13 @@ import java.util.concurrent.CompletableFuture;
 @Service
 public class TransactionServiceImpl implements TransactionService{
 
-    @Autowired
-    private TransactionRepository transactionRepository;
+    private final TransactionRepository transactionRepository;
 
-    @Async
+    @Autowired
+    public TransactionServiceImpl(TransactionRepository transactionRepository) {
+        this.transactionRepository = transactionRepository;
+    }
+
     @Override
     public CompletableFuture<Transaction> createTransaction(Transaction transaction) {
         return CompletableFuture.completedFuture(transactionRepository.save(transaction));

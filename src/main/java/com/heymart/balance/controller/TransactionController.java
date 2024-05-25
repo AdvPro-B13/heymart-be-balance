@@ -2,6 +2,7 @@ package com.heymart.balance.controller;
 
 import com.heymart.balance.dto.TransactionDTO;
 import com.heymart.balance.model.Transaction;
+import com.heymart.balance.service.BalanceService;
 import com.heymart.balance.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,8 +17,13 @@ import java.util.concurrent.CompletableFuture;
 @RequestMapping("/api/transaction")
 public class TransactionController {
 
+    private final TransactionService service;
+
     @Autowired
-    private TransactionService service;
+    public TransactionController(TransactionService service) {
+        this.service = service;
+    }
+
 
     @GetMapping("/")
     public String home() {

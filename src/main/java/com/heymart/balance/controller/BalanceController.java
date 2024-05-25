@@ -18,8 +18,12 @@ import java.util.concurrent.CompletableFuture;
 @RequestMapping("api/balance/")
 public class BalanceController {
 
+    private final BalanceService service;
+
     @Autowired
-    private BalanceService service;
+    public BalanceController(BalanceService service) {
+        this.service = service;
+    }
 
     @GetMapping("/")
     public String intro() {
