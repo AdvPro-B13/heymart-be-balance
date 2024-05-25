@@ -13,7 +13,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
-public class BalanceRepositoryTest {
+class BalanceRepositoryTest {
     @Autowired
     private BalanceRepository balanceRepository;
     private UUID ownerId;

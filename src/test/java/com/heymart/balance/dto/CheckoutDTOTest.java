@@ -11,7 +11,7 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CheckoutDTOTest {
+class CheckoutDTOTest {
     private Validator validator;
 
     @BeforeEach
@@ -37,8 +37,8 @@ public class CheckoutDTOTest {
 
         assertThat(violations).hasSize(1);
         ConstraintViolation<CheckoutDTO> violation = violations.iterator().next();
-        assertThat(violation.getPropertyPath().toString()).isEqualTo("amount");
-        assertThat(violation.getMessage()).isEqualTo("The amount must be greater than 0");
+        assertThat(violation.getPropertyPath().toString()).hasToString("amount");
+        assertThat(violation.getMessage()).hasToString("The amount must be greater than 0");
     }
 
     @Test
@@ -49,8 +49,8 @@ public class CheckoutDTOTest {
 
         assertThat(violations).hasSize(1);
         ConstraintViolation<CheckoutDTO> violation = violations.iterator().next();
-        assertThat(violation.getPropertyPath().toString()).isEqualTo("supermarketId");
-        assertThat(violation.getMessage()).isEqualTo("Transaction supermarketId cannot be null");
+        assertThat(violation.getPropertyPath().toString()).hasToString("supermarketId");
+        assertThat(violation.getMessage()).hasToString("Transaction supermarketId cannot be null");
     }
 
     @Test
@@ -61,8 +61,8 @@ public class CheckoutDTOTest {
 
         assertThat(violations).hasSize(1);
         ConstraintViolation<CheckoutDTO> violation = violations.iterator().next();
-        assertThat(violation.getPropertyPath().toString()).isEqualTo("userId");
-        assertThat(violation.getMessage()).isEqualTo("Transaction userId cannot be null");
+        assertThat(violation.getPropertyPath().toString()).hasToString("userId");
+        assertThat(violation.getMessage()).hasToString("Transaction userId cannot be null");
     }
 
     @Test
@@ -73,7 +73,7 @@ public class CheckoutDTOTest {
         checkoutDTO.setUserId("newUserId");
 
         assertThat(checkoutDTO.getAmount()).isEqualTo(20.0);
-        assertThat(checkoutDTO.getSupermarketId()).isEqualTo("newSupermarketId");
-        assertThat(checkoutDTO.getUserId()).isEqualTo("newUserId");
+        assertThat(checkoutDTO.getSupermarketId()).hasToString("newSupermarketId");
+        assertThat(checkoutDTO.getUserId()).hasToString("newUserId");
     }
 }

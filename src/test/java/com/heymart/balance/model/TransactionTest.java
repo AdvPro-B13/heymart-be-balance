@@ -8,11 +8,11 @@ import org.junit.jupiter.api.Test;
 import java.util.UUID;
 import java.util.Date;
 
-public class TransactionTest {
+class TransactionTest {
     Transaction transaction;
 
     @Test
-    public void testTransactionGettersAndSetters() {
+    void testTransactionGettersAndSetters() {
         UUID transactionId = UUID.randomUUID();
         UUID ownerId = UUID.randomUUID();
         Date transactionDate = new Date();
@@ -43,7 +43,7 @@ public class TransactionTest {
     }
 
     @Test
-    public void testTransactionConstructor() {
+    void testTransactionConstructor() {
         UUID ownerId = UUID.randomUUID();
         Date transactionDate = new Date();
         double amount = 200.00;

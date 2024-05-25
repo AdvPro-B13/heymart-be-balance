@@ -17,7 +17,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
-public class TransactionRepositoryTest {
+class TransactionRepositoryTest {
 
     @Autowired
     private TransactionRepository transactionRepository;

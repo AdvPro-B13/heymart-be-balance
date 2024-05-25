@@ -11,7 +11,7 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TransactionDTOTest {
+class TransactionDTOTest {
     private Validator validator;
 
     @BeforeEach
@@ -37,8 +37,8 @@ public class TransactionDTOTest {
 
         assertThat(violations).hasSize(1);
         ConstraintViolation<TransactionDTO> violation = violations.iterator().next();
-        assertThat(violation.getPropertyPath().toString()).isEqualTo("amount");
-        assertThat(violation.getMessage()).isEqualTo("The amount must be greater than 0");
+        assertThat(violation.getPropertyPath().toString()).hasToString("amount");
+        assertThat(violation.getMessage()).hasToString("The amount must be greater than 0");
     }
 
     @Test
@@ -49,8 +49,8 @@ public class TransactionDTOTest {
 
         assertThat(violations).hasSize(1);
         ConstraintViolation<TransactionDTO> violation = violations.iterator().next();
-        assertThat(violation.getPropertyPath().toString()).isEqualTo("transactionType");
-        assertThat(violation.getMessage()).isEqualTo("Transaction type cannot be null");
+        assertThat(violation.getPropertyPath().toString()).hasToString("transactionType");
+        assertThat(violation.getMessage()).hasToString("Transaction type cannot be null");
     }
 
     @Test
@@ -61,8 +61,8 @@ public class TransactionDTOTest {
 
         assertThat(violations).hasSize(1);
         ConstraintViolation<TransactionDTO> violation = violations.iterator().next();
-        assertThat(violation.getPropertyPath().toString()).isEqualTo("ownerType");
-        assertThat(violation.getMessage()).isEqualTo("Owner type cannot be null");
+        assertThat(violation.getPropertyPath().toString()).hasToString("ownerType");
+        assertThat(violation.getMessage()).hasToString("Owner type cannot be null");
     }
 
     @Test
@@ -73,7 +73,7 @@ public class TransactionDTOTest {
         transactionDTO.setOwnerType("USER");
 
         assertThat(transactionDTO.getAmount()).isEqualTo(20.0);
-        assertThat(transactionDTO.getTransactionType()).isEqualTo("WITHDRAWAL");
-        assertThat(transactionDTO.getOwnerType()).isEqualTo("USER");
+        assertThat(transactionDTO.getTransactionType()).hasToString("WITHDRAWAL");
+        assertThat(transactionDTO.getOwnerType()).hasToString("USER");
     }
 }

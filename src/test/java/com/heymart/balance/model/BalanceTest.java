@@ -2,17 +2,16 @@ package com.heymart.balance.model;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class BalanceTest {
+class BalanceTest {
     Balance balance;
 
     @Test
-    public void testBalanceSettersAndGetters() {
+    void testBalanceSettersAndGetters() {
         UUID balanceId = UUID.randomUUID();
         UUID ownerId = UUID.randomUUID();
         Balance.OwnerType ownerType = Balance.OwnerType.USER;
@@ -30,8 +29,6 @@ public class BalanceTest {
         balance.setBalance(amount);
         balance.setTransactions(transactions);
 
-        Balance newBalance = new Balance();
-
         assertAll("Ensure correct Values",
             () -> assertEquals(balance.getId(), balanceId),
             () -> assertEquals(balance.getOwnerId(), ownerId),
@@ -42,7 +39,7 @@ public class BalanceTest {
     }
 
     @Test
-    public void testBalanceConstructor() {
+    void testBalanceConstructor() {
         UUID ownerId = UUID.randomUUID();
         Balance.OwnerType ownerType = Balance.OwnerType.USER;
 

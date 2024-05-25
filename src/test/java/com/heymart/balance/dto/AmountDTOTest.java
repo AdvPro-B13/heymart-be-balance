@@ -12,7 +12,7 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
-public class AmountDTOTest {
+class AmountDTOTest {
     private Validator validator;
 
     @BeforeEach
@@ -40,8 +40,8 @@ public class AmountDTOTest {
 
         assertThat(violations).hasSize(1);
         ConstraintViolation<AmountDTO> violation = violations.iterator().next();
-        assertThat(violation.getPropertyPath().toString()).isEqualTo("amount");
-        assertThat(violation.getMessage()).isEqualTo("The amount must be positive");
+        assertThat(violation.getPropertyPath().toString()).hasToString("amount");
+        assertThat(violation.getMessage()).hasToString("The amount must be positive");
     }
 
     @Test
