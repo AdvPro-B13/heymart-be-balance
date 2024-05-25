@@ -1,17 +1,14 @@
 package com.heymart.balance.repository;
 
-import com.heymart.balance.controller.BalanceController;
 import com.heymart.balance.model.Balance;
 import com.heymart.balance.model.Transaction;
 import jakarta.transaction.Transactional;
-import org.aspectj.lang.annotation.After;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ContextConfiguration;
+
 
 import java.util.List;
 import java.util.Optional;
