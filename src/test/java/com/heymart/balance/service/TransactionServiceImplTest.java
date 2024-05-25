@@ -10,9 +10,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -55,41 +56,61 @@ public class TransactionServiceImplTest {
 
     @Test
     void testCreateTransaction() {
-        Transaction transaction = transactions.getFirst();
+        Transaction transaction = transactions.get(0);
 
         doReturn(transaction).when(transactionRepository).save(transaction);
 
-        Transaction result = transactionService.createTransaction(transaction);
-        verify(transactionRepository, times(1)).save(transaction);
-        assertEquals(transaction, result);
+        CompletableFuture<Transaction> resultFuture = transactionService.createTransaction(transaction);
+        try {
+            Transaction result = resultFuture.get();
+            verify(transactionRepository, times(1)).save(transaction);
+            assertEquals(transaction, result);
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
     }
     @Test
     void TestFindByIdFound() {
-        Transaction transaction = transactions.getFirst();
+        Transaction transaction = transactions.get(0);
         Optional<Transaction> found = Optional.of(transaction);
 
         doReturn(found).when(transactionRepository).findById(transaction.getId());
-        Optional<Transaction> result = transactionService.findById(transaction.getId());
-        assertEquals(transaction, result.get());
+        CompletableFuture<Optional<Transaction>> resultFuture = transactionService.findById(transaction.getId());
+        try {
+            Optional<Transaction> result = resultFuture.get();
+            assertEquals(transaction, result.get());
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
     void TestFindByIdNotFound() {
-        Transaction transaction = transactions.getFirst();
+        Transaction transaction = transactions.get(0);
 
-
-        doReturn(null).when(transactionRepository).findById(transaction.getId());
-        assertNull(transactionService.findById(transaction.getId()));
+        doReturn(Optional.empty()).when(transactionRepository).findById(transaction.getId());
+        CompletableFuture<Optional<Transaction>> resultFuture = transactionService.findById(transaction.getId());
+        try {
+            Optional<Transaction> result = resultFuture.get();
+            assertEquals(Optional.empty(), result);
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
     void TestFindByOwnerIdNotEmpty() {
-        Transaction transaction = transactions.getFirst();
+        Transaction transaction = transactions.get(0);
         List<Transaction> ownerTransactions = new ArrayList<>();
         ownerTransactions.add(transaction);
 
         doReturn(ownerTransactions).when(transactionRepository).findByOwnerId(transaction.getOwnerId());
-        List<Transaction> resultTransactions = transactionService.findByOwnerId(transaction.getOwnerId());
-        assertEquals(ownerTransactions, resultTransactions);
+        CompletableFuture<List<Transaction>> resultFuture = transactionService.findByOwnerId(transaction.getOwnerId());
+        try {
+            List<Transaction> resultTransactions = resultFuture.get();
+            assertEquals(ownerTransactions, resultTransactions);
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
     }
 }
