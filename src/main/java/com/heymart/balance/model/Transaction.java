@@ -25,7 +25,7 @@ public class Transaction {
     @Column(name = "owner_id", nullable = false)
     private UUID ownerId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "balance_id", nullable = false)
     @JsonIgnore
     private Balance balance;
