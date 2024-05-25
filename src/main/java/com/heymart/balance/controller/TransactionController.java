@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -31,7 +33,7 @@ public class TransactionController {
     }
 
     @GetMapping("/item/{id}/")
-    public CompletableFuture<?> getTransactionById(@PathVariable String id) {
+    public CompletableFuture<ResponseEntity<Transaction>> getTransactionById(@PathVariable String id) {
         try {
             UUID uuid = UUID.fromString(id);
             return service.findById(uuid)
@@ -40,19 +42,19 @@ public class TransactionController {
                     .exceptionally(ex ->  ResponseEntity.badRequest().build());
 
         } catch (IllegalArgumentException ex) {
-            return CompletableFuture.completedFuture(ResponseEntity.badRequest().body("Invalid UUID format"));
+            return CompletableFuture.completedFuture(ResponseEntity.badRequest().build());
         }
     }
 
     @GetMapping("/owner/{ownerId}/")
-    public CompletableFuture<?> getOwnerTransactionList(@PathVariable String ownerId) {
+    public CompletableFuture<ResponseEntity<List<Transaction>>> getOwnerTransactionList(@PathVariable String ownerId) {
         try {
             UUID uuid = UUID.fromString(ownerId);
             return service.findByOwnerId(uuid)
                     .thenApply(ResponseEntity::ok)
                     .exceptionally(ex ->  ResponseEntity.badRequest().build());
         } catch (IllegalArgumentException ex) {
-            return CompletableFuture.completedFuture(ResponseEntity.badRequest().body("Invalid UUID format"));
+            return CompletableFuture.completedFuture(ResponseEntity.badRequest().build());
         }
     }
 

@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -31,7 +32,7 @@ public class BalanceController {
     }
 
     @GetMapping("/item/{id}")
-    public CompletableFuture<?> getBalanceById(@PathVariable String id) {
+    public CompletableFuture<ResponseEntity<Balance>> getBalanceById(@PathVariable String id) {
         try {
             UUID balanceId = UUID.fromString(id);
             return service.findById(balanceId)
@@ -39,12 +40,12 @@ public class BalanceController {
                             .orElseGet(() -> ResponseEntity.notFound().build()))
                     .exceptionally(ex -> ResponseEntity.badRequest().build());
         } catch (IllegalArgumentException ex) {
-            return CompletableFuture.completedFuture(ResponseEntity.badRequest().body("Invalid UUID format."));
+            return CompletableFuture.completedFuture(ResponseEntity.badRequest().build());
         }
     }
 
     @GetMapping("/supermarket/{supermarketId}")
-    public CompletableFuture<?> getSupermarketBalance(@PathVariable String supermarketId) {
+    public CompletableFuture<ResponseEntity<Balance>> getSupermarketBalance(@PathVariable String supermarketId) {
         try {
             UUID ownerId = UUID.fromString(supermarketId);
             return service.findByOwnerId(ownerId)
@@ -52,12 +53,12 @@ public class BalanceController {
                             .orElseGet(() -> ResponseEntity.notFound().build()))
                     .exceptionally(ex -> ResponseEntity.badRequest().build());
         } catch (IllegalArgumentException ex) {
-            return CompletableFuture.completedFuture(ResponseEntity.badRequest().body("Invalid UUID format."));
+            return CompletableFuture.completedFuture(ResponseEntity.badRequest().build());
         }
     }
 
     @PostMapping("/supermarket/{supermarketId}")
-    public CompletableFuture<?> postCreateSupermarketBalance(
+    public CompletableFuture<ResponseEntity<Balance>> postCreateSupermarketBalance(
             @PathVariable String supermarketId) {
         try {
             UUID ownerId = UUID.fromString(supermarketId);
@@ -66,12 +67,12 @@ public class BalanceController {
                     .thenApply(ResponseEntity::ok)
                     .exceptionally(ex -> ResponseEntity.badRequest().build());
         } catch (IllegalArgumentException ex) {
-            return CompletableFuture.completedFuture(ResponseEntity.badRequest().body("invalid arguments"));
+            return CompletableFuture.completedFuture(ResponseEntity.badRequest().build());
         }
     }
 
     @GetMapping("/user/{userId}")
-    public CompletableFuture<?> getUserBalance(@PathVariable String userId) {
+    public CompletableFuture<ResponseEntity<Balance>> getUserBalance(@PathVariable String userId) {
         try {
             UUID ownerId = UUID.fromString(userId);
             return service.findByOwnerId(ownerId)
@@ -79,12 +80,12 @@ public class BalanceController {
                             .orElseGet(() -> ResponseEntity.notFound().build()))
                     .exceptionally(ex -> ResponseEntity.badRequest().build());
         } catch (IllegalArgumentException ex) {
-            return CompletableFuture.completedFuture(ResponseEntity.badRequest().body("Invalid UUID format."));
+            return CompletableFuture.completedFuture(ResponseEntity.badRequest().build());
         }
     }
 
     @PostMapping("/user/{userId}")
-    public CompletableFuture<?> postCreateUserBalance(
+    public CompletableFuture<ResponseEntity<Balance>> postCreateUserBalance(
             @PathVariable String userId) {
         try {
             UUID ownerId = UUID.fromString(userId);
@@ -93,12 +94,12 @@ public class BalanceController {
                     .thenApply(ResponseEntity::ok)
                     .exceptionally(ex -> ResponseEntity.badRequest().build());
         } catch (IllegalArgumentException ex) {
-            return CompletableFuture.completedFuture(ResponseEntity.badRequest().body("invalid arguments"));
+            return CompletableFuture.completedFuture(ResponseEntity.badRequest().build());
         }
     }
 
     @PutMapping("/checkout")
-    public CompletableFuture<?> putCheckout(
+    public CompletableFuture<ResponseEntity<List<Balance>>> putCheckout(
             @Valid @RequestBody CheckoutDTO checkoutDTO) {
 
         try {
@@ -110,13 +111,13 @@ public class BalanceController {
                    .thenApply(ResponseEntity::ok)
                    .exceptionally(ex -> ResponseEntity.badRequest().build());
         } catch (Exception e) {
-            return CompletableFuture.completedFuture(ResponseEntity.badRequest().body("invalid arguments"));
+            return CompletableFuture.completedFuture(ResponseEntity.badRequest().build());
         }
 
     }
 
     @PutMapping("/topup/{ownerId}")
-    public CompletableFuture<?> putTopupBalance(
+    public CompletableFuture<ResponseEntity<Balance>> putTopupBalance(
             @PathVariable String ownerId,
             @Valid @RequestBody AmountDTO amountDTO) {
 
@@ -127,14 +128,14 @@ public class BalanceController {
                             .orElseGet(() -> ResponseEntity.badRequest().build()))
                     .exceptionally(ex -> ResponseEntity.badRequest().build());
         } catch (IllegalArgumentException ex) {
-            return CompletableFuture.completedFuture(ResponseEntity.badRequest().body("invalid arguments"));
+            return CompletableFuture.completedFuture(ResponseEntity.badRequest().build());
         } catch (BalanceNotFoundException bnf) {
             return CompletableFuture.completedFuture(ResponseEntity.notFound().build());
         }
     }
 
     @PutMapping("/withdraw/{ownerId}")
-    public CompletableFuture<?> putWithdrawBalance(
+    public CompletableFuture<ResponseEntity<Balance>> putWithdrawBalance(
             @PathVariable String ownerId,
             @Valid @RequestBody AmountDTO amountDTO) {
 
@@ -145,7 +146,7 @@ public class BalanceController {
                             .orElseGet(() -> ResponseEntity.badRequest().build()))
                     .exceptionally(ex -> ResponseEntity.badRequest().build());
         } catch (IllegalArgumentException ex) {
-            return CompletableFuture.completedFuture(ResponseEntity.badRequest().body("invalid arguments"));
+            return CompletableFuture.completedFuture(ResponseEntity.badRequest().build());
         } catch (BalanceNotFoundException bnf) {
             return CompletableFuture.completedFuture(ResponseEntity.notFound().build());
         }

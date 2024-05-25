@@ -126,8 +126,11 @@ public class BalanceServiceImpl implements BalanceService{
             Optional<Balance> updatedUserBalance = balanceRepository.findByOwnerId(userId);
             Optional<Balance> updatedSupermarketBalance = balanceRepository.findByOwnerId(supermarketId);
 
-            response.add(updatedUserBalance.get());
-            response.add(updatedSupermarketBalance.get());
+            if (updatedUserBalance.isPresent() && updatedSupermarketBalance.isPresent()) {
+                response.add(updatedUserBalance.get());
+                response.add(updatedSupermarketBalance.get());
+            }
+
             return CompletableFuture.completedFuture(response);
         }
 
