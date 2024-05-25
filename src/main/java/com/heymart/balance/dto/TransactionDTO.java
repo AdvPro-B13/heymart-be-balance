@@ -14,11 +14,15 @@ public class TransactionDTO {
     @NotNull(message = "Transaction type cannot be null")
     private String transactionType;
 
+    @NotNull(message = "Owner type cannot be null")
+    private String ownerType;
+
     public TransactionDTO() {
     }
 
-    public TransactionDTO(double amount, String transactionType) {
+    public TransactionDTO(double amount, String transactionType, String ownerType) {
         this.amount = amount;
         this.transactionType = transactionType;
+        this.ownerType = ownerType;
     }
 }

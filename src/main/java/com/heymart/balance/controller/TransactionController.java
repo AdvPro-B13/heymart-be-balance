@@ -3,15 +3,15 @@ package com.heymart.balance.controller;
 import com.heymart.balance.dto.TransactionDTO;
 import com.heymart.balance.model.Transaction;
 import com.heymart.balance.service.TransactionService;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
-import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
+@CrossOrigin(origins = "http://localhost:3000/")
 @RestController
 @RequestMapping("/api/transaction")
 public class TransactionController {
@@ -25,57 +25,38 @@ public class TransactionController {
     }
 
     @GetMapping("/item/{id}/")
-    public ResponseEntity<Transaction> getTransactionById(@PathVariable String id) {
-        UUID uuid;
+    public CompletableFuture<?> getTransactionById(@PathVariable String id) {
         try {
-            uuid = UUID.fromString(id);
+            UUID uuid = UUID.fromString(id);
+            return service.findById(uuid)
+                    .thenApply(transaction -> transaction.map(ResponseEntity::ok)
+                            .orElseGet(() -> ResponseEntity.notFound().build()))
+                    .exceptionally(ex ->  ResponseEntity.badRequest().build());
+
         } catch (IllegalArgumentException ex) {
-            return ResponseEntity.badRequest().build();
+            return CompletableFuture.completedFuture(ResponseEntity.badRequest().body("Invalid UUID format"));
         }
-
-        Transaction transaction = service.findById(uuid);
-
-        if (transaction == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        return ResponseEntity.ok(transaction);
     }
 
     @GetMapping("/owner/{ownerId}/")
-    public ResponseEntity<List<Transaction>> getOwnerTransactionList(@PathVariable String ownerId) {
-        UUID uuid;
+    public CompletableFuture<?> getOwnerTransactionList(@PathVariable String ownerId) {
         try {
-            uuid = UUID.fromString(ownerId);
+            UUID uuid = UUID.fromString(ownerId);
+            return service.findByOwnerId(uuid)
+                    .thenApply(ResponseEntity::ok)
+                    .exceptionally(ex ->  ResponseEntity.badRequest().build());
         } catch (IllegalArgumentException ex) {
-            return ResponseEntity.badRequest().build();
+            return CompletableFuture.completedFuture(ResponseEntity.badRequest().body("Invalid UUID format"));
         }
-
-        List<Transaction> result = service.findByOwnerId(uuid);
-
-        return ResponseEntity.ok(result);
     }
 
-    @PostMapping("/owner/{ownerId}/")
-    public ResponseEntity<Transaction> postOwnerTransaction(
-            @PathVariable String ownerId,
-            @Valid @RequestBody TransactionDTO transactionDTO) {
-
-        UUID uuid;
-        try {
-            uuid = UUID.fromString(ownerId);
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.badRequest().build();
-        }
-
+    private Transaction convertToEntity(TransactionDTO dto, UUID ownerId) {
         Transaction transaction = new Transaction();
-        transaction.setId(UUID.randomUUID());
-        transaction.setOwnerId(uuid);
-        transaction.setAmount(transactionDTO.getAmount());
-        transaction.setTransactionType(Transaction.TransactionType.valueOf(transactionDTO.getTransactionType().toUpperCase()));
+        transaction.setOwnerId(ownerId);
+        transaction.setAmount(dto.getAmount());
+        transaction.setTransactionType(Transaction.TransactionType.valueOf(dto.getTransactionType().toUpperCase()));
+        transaction.setOwnerType(Transaction.OwnerType.valueOf(dto.getOwnerType().toUpperCase()));
         transaction.setTransactionDate(new Date());
-
-        transaction = service.createTransaction(transaction);
-        return ResponseEntity.ok(transaction);
+        return transaction;
     }
 }

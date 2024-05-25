@@ -1,56 +1,56 @@
 package com.heymart.balance.model;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 public class BalanceTest {
-    UserBalance userBalance;
-    SupermarketBalance supermarketBalance;
+    Balance balance;
 
-    @BeforeEach
-    void setup() {
-        this.userBalance = new UserBalance(new User("Udin"));
-        this.supermarketBalance = new SupermarketBalance(new Supermarket("MOR Minimarket"));
-        
-        this.userBalance.setId(UUID.fromString("c0adc466-a41c-4fe9-bebe-b879ba3d5ec7"));
-        this.userBalance.setBalance(500000.0);
+    @Test
+    public void testBalanceSettersAndGetters() {
+        UUID balanceId = UUID.randomUUID();
+        UUID ownerId = UUID.randomUUID();
+        Balance.OwnerType ownerType = Balance.OwnerType.USER;
+        Double amount = 40.0;
 
-        this.supermarketBalance.setId(UUID.fromString("e7271c2f-df0a-4b52-ab8b-ca59bc2aaf13"));
-        this.supermarketBalance.setBalance(0.0);
+        Transaction transaction = new Transaction();
+        transaction.setId(UUID.randomUUID());
+        List<Transaction> transactions = List.of(transaction);
+
+        balance = new Balance();
+
+        balance.setId(balanceId);
+        balance.setOwnerId(ownerId);
+        balance.setOwnerType(ownerType);
+        balance.setBalance(amount);
+        balance.setTransactions(transactions);
+
+        Balance newBalance = new Balance();
+
+        assertAll("Ensure correct Values",
+            () -> assertEquals(balance.getId(), balanceId),
+            () -> assertEquals(balance.getOwnerId(), ownerId),
+            () -> assertEquals(balance.getOwnerType(), ownerType),
+            () -> assertEquals(balance.getBalance(), amount),
+            () -> assertEquals(balance.getTransactions(), transactions)
+        );
     }
 
     @Test
-    void testGetBalanceId() {
-        assertEquals("c0adc466-a41c-4fe9-bebe-b879ba3d5ec7", this.userBalance.getId().toString());
-        assertEquals("e7271c2f-df0a-4b52-ab8b-ca59bc2aaf13", this.supermarketBalance.getId().toString());
-    }
+    public void testBalanceConstructor() {
+        UUID ownerId = UUID.randomUUID();
+        Balance.OwnerType ownerType = Balance.OwnerType.USER;
 
-    @Test
-    void testGetProductOwner() {
-        assertEquals("Udin", this.userBalance.getOwner().getName());
-        assertEquals("MOR Minimarket", this.supermarketBalance.getOwner().getName());
-    }
+        Balance newConstructedBalance = new Balance(ownerId, ownerType);
 
-    @Test
-    void testGetProductBalance() {
-        assertEquals(500000, this.userBalance.getBalance());
-        assertEquals(0, this.supermarketBalance.getBalance());
-    }
-
-    @Test
-    void testCreateBalanceEmptyOwner() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            UserBalance newBalance = new UserBalance(null);
-            newBalance.getId();
-        });
-        assertThrows(IllegalArgumentException.class, () -> {
-            SupermarketBalance newBalance = new SupermarketBalance(null);
-            newBalance.getId();
-        });
+        assertAll("constructor",
+            () -> assertNotNull(newConstructedBalance.getOwnerId()),
+            () -> assertNotNull(newConstructedBalance.getOwnerType())
+        );
     }
 }

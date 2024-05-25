@@ -3,10 +3,13 @@ package com.heymart.balance.service;
 import com.heymart.balance.model.Transaction;
 import com.heymart.balance.repository.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class TransactionServiceImpl implements TransactionService{
@@ -14,19 +17,20 @@ public class TransactionServiceImpl implements TransactionService{
     @Autowired
     private TransactionRepository transactionRepository;
 
-    public Transaction createTransaction(Transaction transaction) {
-        if (transactionRepository.findById(transaction.getId()) == null) {
-            transactionRepository.save(transaction);
-            return transaction;
-        }
-        return null;
+    @Async
+    @Override
+    public CompletableFuture<Transaction> createTransaction(Transaction transaction) {
+        return CompletableFuture.completedFuture(transactionRepository.save(transaction));
     }
 
-    public Transaction findById(UUID id) {
-        return transactionRepository.findById(id);
+    @Async("taskExecutor")
+    @Override
+    public CompletableFuture<Optional<Transaction>> findById(UUID id) {
+        return CompletableFuture.completedFuture(transactionRepository.findById(id));
     }
 
-    public List<Transaction> findByOwnerId(UUID id) {
-        return transactionRepository.findByOwnerId(id);
+    @Async("taskExecutor")
+    public CompletableFuture<List<Transaction>> findByOwnerId(UUID id) {
+        return CompletableFuture.completedFuture(transactionRepository.findByOwnerId(id));
     }
 }

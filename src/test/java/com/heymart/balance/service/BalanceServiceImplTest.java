@@ -1,212 +1,254 @@
 package com.heymart.balance.service;
 
-import com.heymart.balance.model.Supermarket;
-import com.heymart.balance.model.SupermarketBalance;
-import com.heymart.balance.model.User;
-import com.heymart.balance.model.UserBalance;
-import com.heymart.balance.repository.SupermarketBalanceRepository;
-import com.heymart.balance.repository.UserBalanceRepository;
-
-import org.junit.jupiter.api.BeforeEach;
+import com.heymart.balance.exceptions.BalanceNotFoundException;
+import com.heymart.balance.model.Balance;
+import com.heymart.balance.model.Transaction;
+import com.heymart.balance.repository.BalanceRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
 @ExtendWith(MockitoExtension.class)
 public class BalanceServiceImplTest {
-    @InjectMocks
-    UserBalanceServiceImpl userBalanceService;
-    @InjectMocks
-    SupermarketBalanceServiceImpl supermarketBalanceService;
+
     @Mock
-    UserBalanceRepository userBalanceRepository;
+    private BalanceRepository balanceRepository;
+
     @Mock
-    SupermarketBalanceRepository supermarketBalanceRepository;
+    private TransactionService transactionService;
 
-    List<UserBalance> userBalances;
-    List<SupermarketBalance> supermarketBalances;
+    @InjectMocks
+    private BalanceServiceImpl balanceService;
 
-    @BeforeEach
-    void setup() {
-        userBalances = new ArrayList<>();
-        supermarketBalances = new ArrayList<>();
+    @Test
+    void createBalance_shouldCreateNewBalance() {
+        UUID id = UUID.randomUUID();
+        UUID ownerId = UUID.randomUUID();
+        Balance.OwnerType ownerType = Balance.OwnerType.USER;
+        Balance dummy = new Balance(ownerId, ownerType);
+        dummy.setId(id);
 
-        UserBalance Ub1 = new UserBalance(new User("udin"));
-        Ub1.setId(UUID.fromString("5efdf6f4-7aaa-4cc8-a37c-af428d6e4459"));
-        Ub1.setBalance(75000.0);
+        doReturn(Optional.empty()).when(balanceRepository).findByOwnerId(ownerId);
+        doReturn(dummy).when(balanceRepository).save(any());
 
-        UserBalance Ub2 = new UserBalance(new User("Keira"));
-        Ub2.setId(UUID.fromString("118b9247-f64e-4645-9626-9e68fbd85cb8"));
+        Balance createdBalance = balanceService.createBalance(ownerId, ownerType).join();
 
-        userBalances.add(Ub1);
-        userBalances.add(Ub2);
+        assertNotNull(createdBalance);
+        assertNotNull(createdBalance);
+        assertEquals(ownerId, createdBalance.getOwnerId());
+        assertEquals(ownerType, createdBalance.getOwnerType());
+        assertEquals(0.0, createdBalance.getBalance());
 
-        SupermarketBalance Sb1= new SupermarketBalance(new Supermarket("udin mart"));
-        Sb1.setId(UUID.fromString("17607619-9663-4af4-a33c-a687d5cbc1e0"));
-        Sb1.setBalance(100000.0);
-
-        SupermarketBalance Sb2 = new SupermarketBalance(new Supermarket("Keira Mart"));
-        Sb2.setId(UUID.fromString("dc55a721-de62-4e69-be48-1ef6edad02c4"));
-
-        supermarketBalances.add(Sb1);
-        supermarketBalances.add(Sb2);
+        verify(balanceRepository, times(1)).save(any(Balance.class));
     }
 
     @Test
-    void testCreateBalance() {
-        UserBalance Ub = userBalances.get(1);
-        SupermarketBalance Sb = supermarketBalances.get(1);
+    void createBalance_shouldThrowExceptionIfBalanceExists() {
+        UUID ownerId = UUID.randomUUID();
+        Balance existingBalance = new Balance(ownerId, Balance.OwnerType.USER);
 
-        doReturn(Ub).when(userBalanceRepository).save(Ub);
-        doReturn(Sb).when(supermarketBalanceRepository).save(Sb);
+        doReturn(Optional.of(existingBalance)).when(balanceRepository).findByOwnerId(ownerId);
 
-        UserBalance UbResult = userBalanceService.createBalance(Ub);
-        verify(userBalanceRepository, times(1)).save(Ub);
-        assertEquals(Ub, UbResult);
-
-        SupermarketBalance SbResult = supermarketBalanceService.createBalance(Sb);
-        verify(supermarketBalanceRepository, times(1)).save(Sb);
-        assertEquals(Sb, SbResult);
+        assertThrows(IllegalArgumentException.class, () -> balanceService.createBalance(ownerId, Balance.OwnerType.USER).join());
+        verify(balanceRepository, never()).save(any(Balance.class));
     }
 
     @Test
-    void testCreateBalanceIfAlreadyExists() {
-        UserBalance Ub = userBalances.get(1);
-        SupermarketBalance Sb = supermarketBalances.get(1);
+    void topUp_shouldIncreaseBalanceAndCreateTransaction() {
+        UUID id = UUID.randomUUID();
+        UUID ownerId = UUID.randomUUID();
+        double initialAmount = 100.0;
+        double topUpAmount = 50.0;
+        Balance balance = new Balance(ownerId, Balance.OwnerType.USER);
+        balance.setBalance(initialAmount);
+        balance.setId(id);
 
-        doReturn(Ub).when(userBalanceRepository).findById(Ub.getId());
-        doReturn(Sb).when(supermarketBalanceRepository).findById(Sb.getId());
+        doReturn(Optional.of(balance)).when(balanceRepository).findByOwnerId(ownerId);
+        doReturn(balance).when(balanceRepository).save(any());
+        doReturn(Optional.of(balance)).when(balanceRepository).findById(id);
 
-        assertNull(userBalanceService.createBalance(Ub));
-        verify(userBalanceRepository, times(0)).save(Ub);
+        CompletableFuture<Optional<Balance>> result = balanceService.topUp(ownerId, topUpAmount);
 
-        assertNull(supermarketBalanceService.createBalance(Sb));
-        verify(supermarketBalanceRepository, times(0)).save(Sb);   
+        assertTrue(result.join().isPresent());
+        Balance updatedBalance = result.join().get();
+        assertEquals(initialAmount + topUpAmount, updatedBalance.getBalance());
+
+        verify(balanceRepository, times(1)).save(any(Balance.class));
+        verify(transactionService, times(1)).createTransaction(any(Transaction.class));
     }
 
     @Test
-    void testCreateBalanceIfOwnerAlreadyHasBalance() {
-        UserBalance Ub = userBalances.get(1);
-        SupermarketBalance Sb = supermarketBalances.get(1);
+    void topup_shouldThrowExceptionIfNotFound() {
+        UUID ownerId = UUID.randomUUID();
+        double withdrawAmount = 100.0;
 
-        doReturn(Ub).when(userBalanceRepository).findByUserId(Ub.getOwner().getId());
-        doReturn(Sb).when(supermarketBalanceRepository).findBySupermarketId(Sb.getOwner().getId());
+        when(balanceRepository.findByOwnerId(ownerId)).thenReturn(Optional.empty());
 
-        assertNull(userBalanceService.createBalance(Ub));
-        verify(userBalanceRepository, times(0)).save(Ub);
+        assertThrows(BalanceNotFoundException.class, () -> balanceService.topUp(ownerId, withdrawAmount).join());
 
-        assertNull(supermarketBalanceService.createBalance(Sb));
-        verify(supermarketBalanceRepository, times(0)).save(Sb);
+        verify(balanceRepository, never()).save(any(Balance.class));
+        verify(transactionService, never()).createTransaction(any(Transaction.class));
+    }
+
+    @Test
+    void withdraw_shouldDecreaseBalanceAndCreateTransaction() {
+        UUID id = UUID.randomUUID();
+        UUID ownerId = UUID.randomUUID();
+        double initialAmount = 100.0;
+        double withdrawAmount = 50.0;
+        Balance balance = new Balance(ownerId, Balance.OwnerType.USER);
+        balance.setBalance(initialAmount);
+        balance.setId(id);
+
+        doReturn(Optional.of(balance)).when(balanceRepository).findByOwnerId(ownerId);
+        doReturn(Optional.of(balance)).when(balanceRepository).findById(id);
+
+        CompletableFuture<Optional<Balance>> result = balanceService.withdraw(ownerId, withdrawAmount);
+
+        assertTrue(result.join().isPresent());
+        Balance updatedBalance = result.join().get();
+        assertEquals(initialAmount - withdrawAmount, updatedBalance.getBalance());
+
+        verify(balanceRepository, times(1)).save(any(Balance.class));
+        verify(transactionService, times(1)).createTransaction(any(Transaction.class));
+    }
+
+    @Test
+    void withdraw_shouldThrowExceptionIfInsufficientFunds() {
+        UUID ownerId = UUID.randomUUID();
+        double initialAmount = 50.0;
+        double withdrawAmount = 100.0;
+        Balance balance = new Balance(ownerId, Balance.OwnerType.USER);
+        balance.setBalance(initialAmount);
+
+        when(balanceRepository.findByOwnerId(ownerId)).thenReturn(Optional.of(balance));
+
+        assertThrows(IllegalArgumentException.class, () -> balanceService.withdraw(ownerId, withdrawAmount).join());
+
+        verify(balanceRepository, never()).save(any(Balance.class));
+        verify(transactionService, never()).createTransaction(any(Transaction.class));
+    }
+
+    @Test
+    void withdraw_shouldThrowExceptionIfNotFound() {
+        UUID ownerId = UUID.randomUUID();
+        double withdrawAmount = 100.0;
+
+        when(balanceRepository.findByOwnerId(ownerId)).thenReturn(Optional.empty());
+
+        assertThrows(BalanceNotFoundException.class, () -> balanceService.withdraw(ownerId, withdrawAmount).join());
+
+        verify(balanceRepository, never()).save(any(Balance.class));
+        verify(transactionService, never()).createTransaction(any(Transaction.class));
+    }
+
+    @Test
+    void checkout_shouldProcessTransactionBetweenUserAndSupermarket() {
+        UUID userId = UUID.randomUUID();
+        UUID supermarketId = UUID.randomUUID();
+        double initialUserAmount = 100.0;
+        double initialSupermarketAmount = 50.0;
+        double checkoutAmount = 40.0;
+
+        Balance userBalance = new Balance(userId, Balance.OwnerType.USER);
+        userBalance.setBalance(initialUserAmount);
+        Balance supermarketBalance = new Balance(supermarketId, Balance.OwnerType.SUPERMARKET);
+        supermarketBalance.setBalance(initialSupermarketAmount);
+
+        doReturn(Optional.of(userBalance)).when(balanceRepository).findByOwnerId(userId);
+        doReturn(Optional.of(supermarketBalance)).when(balanceRepository).findByOwnerId(supermarketId);
+        doReturn(userBalance).when(balanceRepository).save(userBalance);
+        doReturn(supermarketBalance).when(balanceRepository).save(supermarketBalance);
+
+        CompletableFuture<List<Balance>> result = balanceService.checkout(userId, supermarketId, checkoutAmount);
+
+        List<Balance> balances = result.join();
+        assertEquals(2, balances.size());
+        Balance updatedUserBalance = balances.get(0);
+        Balance updatedSupermarketBalance = balances.get(1);
+
+        assertEquals(initialUserAmount - checkoutAmount, updatedUserBalance.getBalance());
+        assertEquals(initialSupermarketAmount + checkoutAmount, updatedSupermarketBalance.getBalance());
+
+        verify(balanceRepository, times(6)).findByOwnerId(any(UUID.class)); // Called twice in service methods and twice in reload
+        verify(balanceRepository, times(2)).save(any(Balance.class));
+        verify(transactionService, times(2)).createTransaction(any(Transaction.class));
+    }
+
+    @Test
+    void checkout_ShouldThrowErrorIfNotFound() {
+        UUID ownerId1 = UUID.randomUUID();
+        UUID ownerId2 = UUID.randomUUID();
+        double checkoutAmount = 100.0;
+
+        when(balanceRepository.findByOwnerId(ownerId1)).thenReturn(Optional.empty());
+        when(balanceRepository.findByOwnerId(ownerId2)).thenReturn(Optional.empty());
+
+        assertThrows(BalanceNotFoundException.class, () -> balanceService.checkout(ownerId1, ownerId2, checkoutAmount).join());
+
+        verify(balanceRepository, never()).save(any(Balance.class));
+        verify(transactionService, never()).createTransaction(any(Transaction.class));
     }
 
     @Test
     void testFindByIdFound() {
-        UserBalance Ub = userBalances.get(1);
-        SupermarketBalance Sb = supermarketBalances.get(1);
+        UUID id = UUID.randomUUID();
+        UUID ownerId = UUID.randomUUID();
+        Balance.OwnerType ownerType = Balance.OwnerType.USER;
+        Balance dummy = new Balance(ownerId, ownerType);
+        dummy.setId(id);
 
-        doReturn(Ub).when(userBalanceRepository).findById(Ub.getId());
-        doReturn(Sb).when(supermarketBalanceRepository).findById(Sb.getId());
+        doReturn(Optional.of(dummy))
+                .when(balanceRepository).findById(id);
+        Optional<Balance> foundBalance = balanceService.findById(id).join();
 
-        UserBalance UbResult = userBalanceService.findById(Ub.getId());
-        assertEquals(Ub, UbResult);
-
-        SupermarketBalance SbResult = supermarketBalanceService.findById(Sb.getId());
-        assertEquals(Sb, SbResult);
+        assertTrue(foundBalance.isPresent());
+        assertEquals(foundBalance.get().getOwnerId(), ownerId);
     }
 
     @Test
     void testFindByIdNotFound() {
-        UserBalance Ub = userBalances.get(1);
-        SupermarketBalance Sb = supermarketBalances.get(1);
+        UUID id = UUID.randomUUID();
 
-        doReturn(null).when(userBalanceRepository).findById(Ub.getId());
-        doReturn(null).when(supermarketBalanceRepository).findById(Sb.getId());
+        doReturn(Optional.empty())
+                .when(balanceRepository).findById(id);
+        Optional<Balance> foundBalance = balanceService.findById(id).join();
 
-        assertNull(userBalanceService.findById(Ub.getId()));
-        assertNull(supermarketBalanceService.findById(Sb.getId()));
+        assertTrue(foundBalance.isEmpty());
     }
 
     @Test
     void testFindByOwnerIdFound() {
-        UserBalance Ub = userBalances.get(1);
-        SupermarketBalance Sb = supermarketBalances.get(1);
+        UUID id = UUID.randomUUID();
+        UUID ownerId = UUID.randomUUID();
+        Balance.OwnerType ownerType = Balance.OwnerType.USER;
+        Balance dummy = new Balance(ownerId, ownerType);
+        dummy.setId(id);
 
-        doReturn(Ub).when(userBalanceRepository).findByUserId(Ub.getOwner().getId());
-        doReturn(Sb).when(supermarketBalanceRepository).findBySupermarketId(Sb.getOwner().getId());
+        doReturn(Optional.of(dummy))
+                .when(balanceRepository).findById(ownerId);
+        Optional<Balance> foundBalance = balanceService.findById(ownerId).join();
 
-        UserBalance UbResult = userBalanceService.findByUserId(Ub.getOwner().getId());
-        assertEquals(Ub, UbResult);
-
-        SupermarketBalance SbResult = supermarketBalanceService.findBySupermarketId(Sb.getOwner().getId());
-        assertEquals(Sb, SbResult);
+        assertTrue(foundBalance.isPresent());
+        assertEquals(foundBalance.get().getOwnerId(), ownerId);
     }
 
     @Test
     void testFindByOwnerIdNotFound() {
-        UserBalance Ub = userBalances.get(1);
-        SupermarketBalance Sb = supermarketBalances.get(1);
+        UUID id = UUID.randomUUID();
 
-        doReturn(null).when(userBalanceRepository).findByUserId(Ub.getOwner().getId());
-        doReturn(null).when(supermarketBalanceRepository).findBySupermarketId(Sb.getOwner().getId());
+        doReturn(Optional.empty())
+                .when(balanceRepository).findByOwnerId(id);
+        Optional<Balance> foundBalance = balanceService.findByOwnerId(id).join();
 
-        assertNull(userBalanceService.findByUserId(Ub.getOwner().getId()));
-        assertNull(supermarketBalanceService.findBySupermarketId(Sb.getOwner().getId()));
-    }
-    @Test
-    void testTopupSuccess() {
-        UserBalance Ub = userBalances.get(1);
-        SupermarketBalance Sb = supermarketBalances.get(1);
-
-        doReturn(Ub).when(userBalanceRepository).findById(Ub.getId());
-        doReturn(Sb).when(supermarketBalanceRepository).findById(Sb.getId());
-
-        UserBalance UbResult = userBalanceService.topup(Ub, 5000.0);
-        assertEquals(5000.0, UbResult.getBalance());
-
-        SupermarketBalance SbResult = supermarketBalanceService.topup(Sb, 7500.0);
-        assertEquals(7500.0, SbResult.getBalance());
+        assertTrue(foundBalance.isEmpty());
     }
 
-    @Test
-    void testWithdrawSuccess() {
-        UserBalance Ub = userBalances.get(0); // balance 75000
-        SupermarketBalance Sb = supermarketBalances.get(0); // balance 100000
-
-        doReturn(Ub).when(userBalanceRepository).findById(Ub.getId());
-        doReturn(Sb).when(supermarketBalanceRepository).findById(Sb.getId());
-
-        UserBalance UbResult = userBalanceService.withdraw(Ub, 5000.0);
-        assertEquals(70000.0, UbResult.getBalance());
-
-        SupermarketBalance SbResult = supermarketBalanceService.withdraw(Sb, 75000.0);
-        assertEquals(25000.0, SbResult.getBalance());
-    }
-
-    @Test
-    void testwithdrawFail() {
-        UserBalance Ub = userBalances.get(0);
-        Ub.setBalance(10000.0);
-        SupermarketBalance Sb = supermarketBalances.get(0);
-        Sb.setBalance(10000.0);
-
-        doReturn(Ub).when(userBalanceRepository).findById(Ub.getId());
-        doReturn(Sb).when(supermarketBalanceRepository).findById(Sb.getId());
-
-        UserBalance UbResult = userBalanceService.withdraw(Ub, 50000.0);
-        assertNull(UbResult);
-        assertEquals(10000.0, Ub.getBalance());
-
-        SupermarketBalance SbResult = supermarketBalanceService.withdraw(Sb, 75000.0);
-        assertNull(SbResult);
-        assertEquals(10000.0, Sb.getBalance());
-    }
 }
