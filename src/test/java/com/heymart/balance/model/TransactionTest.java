@@ -3,7 +3,6 @@ package com.heymart.balance.model;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
@@ -19,6 +18,8 @@ public class TransactionTest {
         Date transactionDate = new Date();
         double amount = 150.75;
         Transaction.TransactionType transactionType = Transaction.TransactionType.TOPUP;
+        Transaction.OwnerType ownerType = Transaction.OwnerType.SUPERMARKET;
+        Balance relatedBal = new Balance();
 
         Transaction transaction = new Transaction();
         transaction.setId(transactionId);
@@ -26,13 +27,18 @@ public class TransactionTest {
         transaction.setTransactionDate(transactionDate);
         transaction.setAmount(amount);
         transaction.setTransactionType(transactionType);
+        transaction.setOwnerType(ownerType);
+        transaction.setBalance(relatedBal);
 
         assertAll("Ensure correct values",
             () -> assertEquals(transactionId, transaction.getId()),
             () -> assertEquals(ownerId, transaction.getOwnerId()),
             () -> assertEquals(transactionDate, transaction.getTransactionDate()),
             () -> assertEquals(amount, transaction.getAmount()),
-            () -> assertEquals(transactionType, transaction.getTransactionType())
+            () -> assertEquals(transactionType, transaction.getTransactionType()),
+            () -> assertEquals(ownerType, transaction.getOwnerType()),
+            () -> assertEquals(relatedBal, transaction.getBalance())
+
         );
     }
 
