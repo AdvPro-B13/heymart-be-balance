@@ -42,6 +42,14 @@ tasks.withType<Test> {
 	useJUnitPlatform()
 }
 
+tasks.test{
+    filter{
+        excludeTestsMatching("*FunctionalTest")
+    }
+
+    finalizedBy(tasks.jacocoTestReport)
+}
+
 tasks.jacocoTestReport {
     classDirectories.setFrom(files(classDirectories.files.map {
         fileTree(it) { exclude("**/*Application**") }
@@ -55,11 +63,11 @@ tasks.jacocoTestReport {
 }
 
 
-
 sonar {
     properties {
         property("sonar.projectKey", "AdvPro-B13_heymart-be-balance")
         property("sonar.organization", "advpro-b13")
         property("sonar.host.url", "https://sonarcloud.io")
+        property("sonar.coverage.jacoco.xmlReportPaths", "${buildDir}/reports/jacoco/test/jacocoTestReport.xml")
     }
 }
