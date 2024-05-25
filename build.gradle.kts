@@ -6,6 +6,14 @@ plugins {
     id("org.sonarqube") version "4.4.1.3373"
 }
 
+sonar {
+    properties {
+        property("sonar.projectKey", "AdvPro-B13_heymart-be-balance")
+        property("sonar.organization", "advpro-b13")
+        property("sonar.host.url", "https://sonarcloud.io")
+    }
+}
+
 group = "com.heymart"
 version = "0.0.1-SNAPSHOT"
 
@@ -59,15 +67,5 @@ tasks.jacocoTestReport {
         xml.required.set(true)
         csv.required.set(true)
         html.outputLocation.set(layout.buildDirectory.dir("jacocoHtml"))
-    }
-}
-
-
-sonar {
-    properties {
-        property("sonar.projectKey", "AdvPro-B13_heymart-be-balance")
-        property("sonar.organization", "advpro-b13")
-        property("sonar.host.url", "https://sonarcloud.io")
-        property("sonar.coverage.jacoco.xmlReportPaths", "${buildDir}/reports/jacoco/test/jacocoTestReport.xml")
     }
 }
