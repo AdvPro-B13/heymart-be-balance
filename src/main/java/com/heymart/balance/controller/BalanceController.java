@@ -2,20 +2,16 @@ package com.heymart.balance.controller;
 
 import com.heymart.balance.dto.AmountDTO;
 import com.heymart.balance.dto.CheckoutDTO;
+import com.heymart.balance.exceptions.BalanceNotFoundException;
 import com.heymart.balance.model.Balance;
-import com.heymart.balance.model.Transaction;
 import com.heymart.balance.service.BalanceService;
 import jakarta.validation.Valid;
-import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.swing.text.html.Option;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000")
@@ -31,69 +27,74 @@ public class BalanceController {
     }
 
     @GetMapping("/item/{id}")
-    public ResponseEntity<?> getBalanceById(@PathVariable String id) {
+    public CompletableFuture<?> getBalanceById(@PathVariable String id) {
         try {
             UUID balanceId = UUID.fromString(id);
             return service.findById(balanceId)
-                    .map(ResponseEntity::ok)
-                    .orElseGet(() -> ResponseEntity.notFound().build());
+                    .thenApply(balance -> balance.map(ResponseEntity::ok)
+                            .orElseGet(() -> ResponseEntity.notFound().build()))
+                    .exceptionally(ex -> ResponseEntity.badRequest().build());
         } catch (IllegalArgumentException ex) {
-            return ResponseEntity.badRequest().body("Invalid UUID format.");
+            return CompletableFuture.completedFuture(ResponseEntity.badRequest().body("Invalid UUID format."));
         }
     }
 
     @GetMapping("/supermarket/{supermarketId}")
-    public ResponseEntity<?> getSupermarketBalance(@PathVariable String supermarketId) {
+    public CompletableFuture<?> getSupermarketBalance(@PathVariable String supermarketId) {
         try {
             UUID ownerId = UUID.fromString(supermarketId);
             return service.findByOwnerId(ownerId)
-                    .map(ResponseEntity::ok)
-                    .orElseGet(() -> ResponseEntity.notFound().build());
+                    .thenApply(balance -> balance.map(ResponseEntity::ok)
+                            .orElseGet(() -> ResponseEntity.notFound().build()))
+                    .exceptionally(ex -> ResponseEntity.badRequest().build());
         } catch (IllegalArgumentException ex) {
-            return ResponseEntity.badRequest().body("Invalid UUID format.");
+            return CompletableFuture.completedFuture(ResponseEntity.badRequest().body("Invalid UUID format."));
         }
     }
 
     @PostMapping("/supermarket/{supermarketId}")
-    public ResponseEntity<?> postCreateSupermarketBalance(
+    public CompletableFuture<?> postCreateSupermarketBalance(
             @PathVariable String supermarketId) {
         try {
             UUID ownerId = UUID.fromString(supermarketId);
             Balance.OwnerType ownerType = Balance.OwnerType.SUPERMARKET;
-            Balance savedBalance = service.createBalance(ownerId, ownerType);
-            return ResponseEntity.ok(savedBalance);
+            return service.createBalance(ownerId, ownerType)
+                    .thenApply(ResponseEntity::ok)
+                    .exceptionally(ex -> ResponseEntity.badRequest().build());
         } catch (IllegalArgumentException ex) {
-            return ResponseEntity.badRequest().body("invalid arguments");
+            return CompletableFuture.completedFuture(ResponseEntity.badRequest().body("invalid arguments"));
         }
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<?> getUserBalance(@PathVariable String userId) {
+    public CompletableFuture<?> getUserBalance(@PathVariable String userId) {
         try {
             UUID ownerId = UUID.fromString(userId);
             return service.findByOwnerId(ownerId)
-                    .map(ResponseEntity::ok)
-                    .orElseGet(() -> ResponseEntity.notFound().build());
+                    .thenApply(balance -> balance.map(ResponseEntity::ok)
+                            .orElseGet(() -> ResponseEntity.notFound().build()))
+                    .exceptionally(ex -> ResponseEntity.badRequest().build());
         } catch (IllegalArgumentException ex) {
-            return ResponseEntity.badRequest().body("Invalid UUID format.");
+            return CompletableFuture.completedFuture(ResponseEntity.badRequest().body("Invalid UUID format."));
         }
     }
 
     @PostMapping("/user/{userId}")
-    public ResponseEntity<?> postCreateUserBalance(
+    public CompletableFuture<?> postCreateUserBalance(
             @PathVariable String userId) {
         try {
             UUID ownerId = UUID.fromString(userId);
             Balance.OwnerType ownerType = Balance.OwnerType.USER;
-            Balance savedBalance = service.createBalance(ownerId, ownerType);
-            return ResponseEntity.ok(savedBalance);
+            return service.createBalance(ownerId, ownerType)
+                    .thenApply(ResponseEntity::ok)
+                    .exceptionally(ex -> ResponseEntity.badRequest().build());
         } catch (IllegalArgumentException ex) {
-            return ResponseEntity.badRequest().body("invalid arguments");
+            return CompletableFuture.completedFuture(ResponseEntity.badRequest().body("invalid arguments"));
         }
     }
 
     @PutMapping("/checkout")
-    public ResponseEntity<?> putCheckout(
+    public CompletableFuture<?> putCheckout(
             @Valid @RequestBody CheckoutDTO checkoutDTO) {
 
         try {
@@ -101,54 +102,48 @@ public class BalanceController {
             UUID userId = UUID.fromString(checkoutDTO.getUserId());
             double amount = checkoutDTO.getAmount();
 
-           List<Balance> result = service.checkout(userId, supermarketId, amount);
-
-           if (result.isEmpty()) {
-               return ResponseEntity.notFound().build();
-           }
-
-           return ResponseEntity.ok(result);
+           return service.checkout(userId, supermarketId, amount)
+                   .thenApply(ResponseEntity::ok)
+                   .exceptionally(ex -> ResponseEntity.badRequest().build());
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("invalid arguments");
+            return CompletableFuture.completedFuture(ResponseEntity.badRequest().body("invalid arguments"));
         }
 
     }
 
     @PutMapping("/topup/{ownerId}")
-    public ResponseEntity<?> putTopupBalance(
+    public CompletableFuture<?> putTopupBalance(
             @PathVariable String ownerId,
             @Valid @RequestBody AmountDTO amountDTO) {
 
         try {
             UUID ownerUid = UUID.fromString(ownerId);
-            Optional<Balance> targetBalance = service.findByOwnerId(ownerUid);
-            if (targetBalance.isPresent()) {
-                return service.topUp(ownerUid, amountDTO.getAmount()).
-                        map(ResponseEntity::ok)
-                        .orElseGet(() -> ResponseEntity.badRequest().build());
-            }
-            return ResponseEntity.notFound().build();
+            return service.topUp(ownerUid, amountDTO.getAmount())
+                    .thenApply(balance -> balance.map(ResponseEntity::ok)
+                            .orElseGet(() -> ResponseEntity.badRequest().build()))
+                    .exceptionally(ex -> ResponseEntity.badRequest().build());
         } catch (IllegalArgumentException ex) {
-            return ResponseEntity.badRequest().body("invalid a  rguments");
+            return CompletableFuture.completedFuture(ResponseEntity.badRequest().body("invalid arguments"));
+        } catch (BalanceNotFoundException bnf) {
+            return CompletableFuture.completedFuture(ResponseEntity.notFound().build());
         }
     }
 
     @PutMapping("/withdraw/{ownerId}")
-    public ResponseEntity<?> putWithdrawBalance(
+    public CompletableFuture<?> putWithdrawBalance(
             @PathVariable String ownerId,
             @Valid @RequestBody AmountDTO amountDTO) {
 
         try {
             UUID ownerUid = UUID.fromString(ownerId);
-            Optional<Balance> targetBalance = service.findByOwnerId(ownerUid);
-            if (targetBalance.isPresent()) {
-                return service.withdraw(ownerUid, amountDTO.getAmount())
-                        .map(ResponseEntity::ok)
-                        .orElseGet(() -> ResponseEntity.badRequest().build());
-            }
-            return ResponseEntity.notFound().build();
+            return service.withdraw(ownerUid, amountDTO.getAmount())
+                    .thenApply(balance -> balance.map(ResponseEntity::ok)
+                            .orElseGet(() -> ResponseEntity.badRequest().build()))
+                    .exceptionally(ex -> ResponseEntity.badRequest().build());
         } catch (IllegalArgumentException ex) {
-            return ResponseEntity.badRequest().body("invalid arguments");
+            return CompletableFuture.completedFuture(ResponseEntity.badRequest().body("invalid arguments"));
+        } catch (BalanceNotFoundException bnf) {
+            return CompletableFuture.completedFuture(ResponseEntity.notFound().build());
         }
     }
 }
