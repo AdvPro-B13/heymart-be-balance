@@ -1,5 +1,6 @@
 package com.heymart.balance.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -35,7 +36,8 @@ public class Balance {
     @Column(name = "balance", nullable = false)
     private Double balance;
 
-    @OneToMany(mappedBy = "balance", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    @JsonIgnore
+    @OneToMany(mappedBy = "balance", cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<Transaction> transactions;
 
