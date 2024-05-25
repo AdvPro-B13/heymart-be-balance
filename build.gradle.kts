@@ -3,6 +3,7 @@ plugins {
     jacoco
     id("org.springframework.boot") version "3.2.4"
     id("io.spring.dependency-management") version "1.1.4"
+    id("org.sonarqube") version "4.4.1.3373"
 }
 
 group = "com.heymart"
@@ -41,13 +42,6 @@ tasks.withType<Test> {
 	useJUnitPlatform()
 }
 
-tasks.test {
-    filter {
-        excludeTestsMatching("*FunctionalTest")
-    }
-    finalizedBy(tasks.jacocoTestReport)
-}
-
 tasks.jacocoTestReport {
     classDirectories.setFrom(files(classDirectories.files.map {
         fileTree(it) { exclude("**/*Application**") }
@@ -57,5 +51,13 @@ tasks.jacocoTestReport {
         xml.required.set(false)
         csv.required.set(false)
         html.outputLocation.set(layout.buildDirectory.dir("jacocoHtml"))
+    }
+}
+
+sonar {
+    properties {
+        property("sonar.projectKey", "AdvPro-B13_heymart-be-balance")
+        property("sonar.organization", "advpro-b13")
+        property("sonar.host.url", "https://sonarcloud.io")
     }
 }
