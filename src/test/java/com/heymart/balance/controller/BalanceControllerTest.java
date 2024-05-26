@@ -199,7 +199,8 @@ class BalanceControllerTest {
     void putCheckout_Success() {
         CheckoutDTO checkoutDTO = new CheckoutDTO(100.0, "supermarketId", "userID");
         String authorizationHeader = "Bearer validToken";
-        when(authServiceClient.verifyUserAuthorization(anyString(), eq(authorizationHeader))).thenReturn(true);
+        when(authServiceClient.verifyUserAuthorization(anyString(), any(String.class))).thenReturn(true);
+        when(userServiceClient.verifyOwnerIdIsOwner(anyString(), anyString(), anyString())).thenReturn(true);
         when(balanceService.checkout(checkoutDTO.getUserId(), checkoutDTO.getSupermarketId(), checkoutDTO.getAmount()))
                 .thenReturn(CompletableFuture.completedFuture(Arrays.asList(new Balance(), new Balance())));
 
