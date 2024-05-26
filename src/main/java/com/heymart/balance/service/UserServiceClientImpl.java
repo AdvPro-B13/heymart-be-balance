@@ -13,8 +13,8 @@ import java.util.Objects;
 @Service
 public class UserServiceClientImpl implements UserServiceClient {
     RestTemplate restTemplate = new RestTemplate();
-    @Value("${user.api}")
-    String userServiceUrl;
+
+    String userServiceUrl = "http://34.142.195.221/api/user";
 
     @Autowired
     public UserServiceClientImpl(RestTemplate restTemplate) {
