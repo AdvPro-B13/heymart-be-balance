@@ -1,8 +1,8 @@
 package com.heymart.balance.service;
 
+import org.springframework.beans.factory.annotation.Value;
 import com.heymart.balance.dto.UserDTO;
 import com.heymart.balance.exceptions.BalanceNotFoundException;
-import com.heymart.balance.model.Balance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -13,7 +13,8 @@ import java.util.Objects;
 @Service
 public class UserServiceClientImpl implements UserServiceClient {
     RestTemplate restTemplate = new RestTemplate();
-    String userServiceUrl = "http://34.142.195.221/api/user";
+    @Value("${user.api}")
+    String userServiceUrl;
 
     @Autowired
     public UserServiceClientImpl(RestTemplate restTemplate) {

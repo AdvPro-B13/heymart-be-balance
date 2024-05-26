@@ -1,6 +1,6 @@
 package com.heymart.balance.service;
 
-
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -9,7 +9,9 @@ import org.springframework.web.client.RestTemplate;
 public class AuthServiceClientImpl implements AuthServiceClient {
     RestTemplate restTemplate = new RestTemplate();
 
-    String authServiceUrl = "http://34.142.195.221/api/auth";
+    @Value("${auth.api}")
+    String authServiceUrl;
+
     public boolean verifyUserAuthorization(String action, String authorizationHeader) {
         if (authorizationHeader == null) {
             return false;

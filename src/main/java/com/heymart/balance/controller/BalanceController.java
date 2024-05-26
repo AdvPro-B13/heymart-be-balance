@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @RestController
-@CrossOrigin(origins = "*")
 @RequestMapping("api/balance/")
 public class BalanceController {
 
