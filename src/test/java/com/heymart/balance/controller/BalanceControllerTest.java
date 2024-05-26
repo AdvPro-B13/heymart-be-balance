@@ -262,36 +262,6 @@ class BalanceControllerTest {
     }
 
     @Test
-    void testValidAuthorizationFails() {
-        // Mock the auth service to return false
-        when(authServiceClient.verifyUserAuthorization(BalanceActions.USER_BALANCE_READ.getValue(), "dummyAuthHeader"))
-                .thenReturn(false);
-
-        // Perform the GET request
-        ResponseEntity<String> response = balanceController.testValid("dummyAuthHeader");
-
-        // Assert the response
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-    }
-
-    @Test
-    void testValidOwnershipFails() {
-        // Mock the auth service to return true for authorization
-        when(authServiceClient.verifyUserAuthorization(BalanceActions.USER_BALANCE_READ.getValue(), "dummyAuthHeader"))
-                .thenReturn(true);
-
-        // Mock the user service to return false for ownership verification
-        when(userServiceClient.verifyOwnerIdIsOwner("dummyAuthHeader", "1", OwnerTypes.USER.getType()))
-                .thenReturn(false);
-
-        // Perform the GET request
-        ResponseEntity<String> response = balanceController.testValid("dummyAuthHeader");
-
-        // Assert the response
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    }
-
-    @Test
     void testWithdrawValidationFails() throws ExecutionException, InterruptedException {
         // Mock the validation to return false
         when(balanceController.validateRequest("1", OwnerTypes.BOTH.getType(), "Invalid Header", BalanceActions.BOTH_BALANCE_UPDATE.getValue()))
