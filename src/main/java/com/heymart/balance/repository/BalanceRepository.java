@@ -9,5 +9,5 @@ import java.util.UUID;
 
 @Repository
 public interface BalanceRepository extends JpaRepository<Balance, UUID> {
-    Optional<Balance> findByOwnerId(UUID ownerId);
+    Optional<Balance> findByOwnerId(String ownerId);
 }

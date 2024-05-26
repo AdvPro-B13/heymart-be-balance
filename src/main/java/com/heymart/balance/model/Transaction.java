@@ -23,7 +23,7 @@ public class Transaction {
     private UUID id;
 
     @Column(name = "owner_id", nullable = false)
-    private UUID ownerId;
+    private String ownerId;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "balance_id", nullable = false)
@@ -53,7 +53,7 @@ public class Transaction {
         TOPUP, WITHDRAWAL
     }
 
-    public Transaction(UUID ownerId, OwnerType ownerType, Date transactionDate, double amount, TransactionType transactionType) {
+    public Transaction(String ownerId, OwnerType ownerType, Date transactionDate, double amount, TransactionType transactionType) {
         this.ownerId = ownerId;
         this.ownerType = ownerType;
         this.transactionDate = transactionDate;

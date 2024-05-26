@@ -5,5 +5,5 @@ import com.heymart.balance.model.Balance;
 import java.util.UUID;
 
 public interface BalanceFactory {
-    Balance createBalance(UUID ownerId, Balance.OwnerType ownerType);
+    Balance createBalance(String ownerId, Balance.OwnerType ownerType);
 }

@@ -9,5 +9,5 @@ import java.util.UUID;
 
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, UUID> {
-    List<Transaction> findByOwnerId(UUID ownerId);
+    List<Transaction> findByOwnerId(String ownerId);
 }

@@ -33,7 +33,7 @@ public class TransactionServiceImpl implements TransactionService{
     }
 
     @Async("taskExecutor")
-    public CompletableFuture<List<Transaction>> findByOwnerId(UUID id) {
+    public CompletableFuture<List<Transaction>> findByOwnerId(String id) {
         return CompletableFuture.completedFuture(transactionRepository.findByOwnerId(id));
     }
 }

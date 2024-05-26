@@ -10,5 +10,5 @@ import java.util.concurrent.CompletableFuture;
 public interface TransactionService {
     public CompletableFuture<Transaction> createTransaction(Transaction transaction);
     public CompletableFuture<Optional<Transaction>> findById(UUID id);
-    public CompletableFuture<List<Transaction>> findByOwnerId(UUID ownerId);
+    public CompletableFuture<List<Transaction>> findByOwnerId(String ownerId);
 }

@@ -1,70 +1,94 @@
 package com.heymart.balance.controller;
 
 import com.heymart.balance.dto.TransactionDTO;
+import com.heymart.balance.enums.BalanceActions;
+import com.heymart.balance.enums.OwnerTypes;
 import com.heymart.balance.model.Transaction;
+import com.heymart.balance.service.AuthServiceClient;
 import com.heymart.balance.service.BalanceService;
 import com.heymart.balance.service.TransactionService;
+import com.heymart.balance.service.UserServiceClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
-@CrossOrigin(origins = "http://localhost:3000/")
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/transaction")
 public class TransactionController {
 
     private final TransactionService service;
+    private AuthServiceClient authServiceClient;
+    private UserServiceClient userServiceClient;
 
     @Autowired
-    public TransactionController(TransactionService service) {
+    public TransactionController(TransactionService service,
+                                 AuthServiceClient authServiceClient,
+                                 UserServiceClient userServiceClient) {
+
+        this.authServiceClient = authServiceClient;
+        this.userServiceClient = userServiceClient;
         this.service = service;
     }
 
 
-    @GetMapping("/")
+    @GetMapping("")
     public String home() {
         return "You are accessing transaction balance api";
     }
 
-    @GetMapping("/item/{id}/")
-    public CompletableFuture<ResponseEntity<Transaction>> getTransactionById(@PathVariable String id) {
+    @GetMapping("/item/{id}")
+    public CompletableFuture<ResponseEntity<Transaction>> getTransactionById(
+            @PathVariable String id,
+            @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
+
         try {
             UUID uuid = UUID.fromString(id);
-            return service.findById(uuid)
-                    .thenApply(transaction -> transaction.map(ResponseEntity::ok)
-                            .orElseGet(() -> ResponseEntity.notFound().build()))
-                    .exceptionally(ex ->  ResponseEntity.badRequest().build());
+            Optional<Transaction> found = service.findById(uuid).join();
 
-        } catch (IllegalArgumentException ex) {
+            if (found.isPresent()) {
+                boolean validationResult = validateRequest(found.get().getOwnerId(), OwnerTypes.BOTH.getType(),
+                        authorizationHeader, BalanceActions.TRANSACTION_READ.getValue());
+                if (!validationResult) {
+                    return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());
+                }
+
+                return CompletableFuture.completedFuture(ResponseEntity.ok(found.get()));
+            }
+
+            return CompletableFuture.completedFuture(ResponseEntity.notFound().build());
+
+        } catch (Exception ex) {
             return CompletableFuture.completedFuture(ResponseEntity.badRequest().build());
         }
     }
 
-    @GetMapping("/owner/{ownerId}/")
-    public CompletableFuture<ResponseEntity<List<Transaction>>> getOwnerTransactionList(@PathVariable String ownerId) {
+    @GetMapping("/owner/{ownerId}")
+    public CompletableFuture<ResponseEntity<List<Transaction>>> getOwnerTransactionList(
+            @PathVariable String ownerId,
+            @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
+        boolean validationResult = validateRequest(ownerId, OwnerTypes.BOTH.getType(),
+                authorizationHeader, BalanceActions.TRANSACTION_READ.getValue());
+        if (!validationResult) {
+            return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());
+        }
         try {
-            UUID uuid = UUID.fromString(ownerId);
-            return service.findByOwnerId(uuid)
+            return service.findByOwnerId(ownerId)
                     .thenApply(ResponseEntity::ok)
                     .exceptionally(ex ->  ResponseEntity.badRequest().build());
-        } catch (IllegalArgumentException ex) {
+        } catch (Exception ex) {
             return CompletableFuture.completedFuture(ResponseEntity.badRequest().build());
         }
     }
 
-    private Transaction convertToEntity(TransactionDTO dto, UUID ownerId) {
-        Transaction transaction = new Transaction();
-        transaction.setOwnerId(ownerId);
-        transaction.setAmount(dto.getAmount());
-        transaction.setTransactionType(Transaction.TransactionType.valueOf(dto.getTransactionType().toUpperCase()));
-        transaction.setOwnerType(Transaction.OwnerType.valueOf(dto.getOwnerType().toUpperCase()));
-        transaction.setTransactionDate(new Date());
-        return transaction;
+    public boolean validateRequest(String ownerId, String ownerType,
+                                   String token, String action) {
+        if (!authServiceClient.verifyUserAuthorization(action, token)) {
+            return false;
+        }
+        return userServiceClient.verifyOwnerIdIsOwner(token, ownerId, ownerType);
     }
 }

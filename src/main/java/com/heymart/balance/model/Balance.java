@@ -27,7 +27,7 @@ public class Balance {
     private UUID id;
 
     @Column(name = "owner_id", nullable = false)
-    private UUID ownerId;
+    private String ownerId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "owner_type", nullable = false)
@@ -45,7 +45,7 @@ public class Balance {
         USER, SUPERMARKET
     }
 
-    public Balance(UUID ownerId, OwnerType ownerType) {
+    public Balance(String ownerId, OwnerType ownerType) {
         this.ownerId = ownerId;
         this.ownerType = ownerType;
         this.balance = 0.0;

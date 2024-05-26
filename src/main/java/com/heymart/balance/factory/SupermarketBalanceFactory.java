@@ -8,7 +8,7 @@ import java.util.UUID;
 @NoArgsConstructor
 public class SupermarketBalanceFactory implements BalanceFactory {
     @Override
-    public Balance createBalance(UUID ownerId, Balance.OwnerType ownerType) {
+    public Balance createBalance(String ownerId, Balance.OwnerType ownerType) {
         if (!ownerType.equals(Balance.OwnerType.SUPERMARKET)) {
             throw new IllegalArgumentException(("Owner type mismatch for supermarket balance creation"));
         }

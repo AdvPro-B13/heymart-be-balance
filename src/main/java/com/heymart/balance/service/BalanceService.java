@@ -8,10 +8,10 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public interface BalanceService {
-    public CompletableFuture<Balance> createBalance(UUID ownerId, Balance.OwnerType ownerType);
+    public CompletableFuture<Balance> createBalance(String ownerId, Balance.OwnerType ownerType);
     public CompletableFuture<Optional<Balance>> findById(UUID id);
-    public CompletableFuture<Optional<Balance>> findByOwnerId(UUID ownerId);
-    public CompletableFuture<Optional<Balance>> topUp(UUID ownerId, double amount);
-    public CompletableFuture<Optional<Balance>> withdraw(UUID ownerId, double amount);
-    public CompletableFuture<List<Balance>> checkout(UUID userId, UUID supermarketId, double amount);
+    public CompletableFuture<Optional<Balance>> findByOwnerId(String ownerId);
+    public CompletableFuture<Optional<Balance>> topUp(String ownerId, double amount);
+    public CompletableFuture<Optional<Balance>> withdraw(String ownerId, double amount);
+    public CompletableFuture<List<Balance>> checkout(String userId, String supermarketId, double amount);
 }

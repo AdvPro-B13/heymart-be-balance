@@ -36,7 +36,7 @@ public class BalanceServiceImpl implements BalanceService{
 
     @Async("taskExecutor")
     @Transactional
-    public CompletableFuture<Balance> createBalance(UUID ownerId, Balance.OwnerType ownerType) {
+    public CompletableFuture<Balance> createBalance(String ownerId, Balance.OwnerType ownerType) {
         Optional<Balance> existingBalance = balanceRepository.findByOwnerId(ownerId);
         if (existingBalance.isPresent()) {
             throw new IllegalArgumentException("Owner already has a balance");
@@ -55,13 +55,13 @@ public class BalanceServiceImpl implements BalanceService{
 
     @Async("taskExecutor")
     @Override
-    public CompletableFuture<Optional<Balance>> findByOwnerId(UUID ownerId) {
+    public CompletableFuture<Optional<Balance>> findByOwnerId(String ownerId) {
         return CompletableFuture.completedFuture(balanceRepository.findByOwnerId(ownerId));
     }
 
     @Async("taskExecutor")
     @Transactional
-    public CompletableFuture<Optional<Balance>> topUp(UUID ownerId, double amount) {
+    public CompletableFuture<Optional<Balance>> topUp(String ownerId, double amount) {
         Optional<Balance> balance = balanceRepository.findByOwnerId(ownerId);
         if (balance.isEmpty()) {
             throw new BalanceNotFoundException("Balance not found for owner Id" + ownerId.toString());
@@ -85,7 +85,7 @@ public class BalanceServiceImpl implements BalanceService{
 
     @Async("taskExecutor")
     @Transactional
-    public CompletableFuture<Optional<Balance>> withdraw(UUID ownerId, double amount) {
+    public CompletableFuture<Optional<Balance>> withdraw(String ownerId, double amount) {
         Optional<Balance> balance = balanceRepository.findByOwnerId(ownerId);
 
         if (balance.isEmpty()) {
@@ -113,7 +113,7 @@ public class BalanceServiceImpl implements BalanceService{
 
     @Async("taskExecutor")
     @Transactional
-    public CompletableFuture<List<Balance>> checkout(UUID userId, UUID supermarketId, double amount) {
+    public CompletableFuture<List<Balance>> checkout(String userId, String supermarketId, double amount) {
         Optional<Balance> userBalance = balanceRepository.findByOwnerId(userId);
         Optional<Balance> supermarketBalance = balanceRepository.findByOwnerId(supermarketId);
         List<Balance> response = new ArrayList<>();
