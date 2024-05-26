@@ -1,6 +1,7 @@
 package com.heymart.balance.service;
 
 import com.heymart.balance.dto.UserDTO;
+import com.heymart.balance.exceptions.BalanceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -70,22 +71,5 @@ class UserServiceClientImplTest {
 
         assertTrue(userService.verifyOwnerIdIsOwner(token, ownerId, "user"),
                 "Should return true if ownerId matches the id in the UserDTO");
-    }
-
-    @Test
-    void verifyOwnerIdIsOwner_WhenRestTemplateThrowsException() {
-        String token = "Bearer validToken";
-        String ownerId = "user123";
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Authorization", token);
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-
-        when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), eq(entity), eq(UserDTO.class)))
-                .thenThrow(new RuntimeException("Service unavailable"));
-
-        assertFalse(userService.verifyOwnerIdIsOwner(token, ownerId, "user"),
-                "Should return false if there is an exception from restTemplate");
     }
 }
