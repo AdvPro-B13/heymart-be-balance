@@ -19,7 +19,7 @@ import java.util.concurrent.CompletableFuture;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class TransactionControllerTest {
+class TransactionControllerTest {
 
     @Mock
     private AuthServiceClient authServiceClient;
@@ -34,14 +34,14 @@ public class TransactionControllerTest {
     private TransactionController transactionController;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
     }
 
     // Previous tests here...
 
     @Test
-    public void getOwnerTransactionList_ExceptionHandling() {
+    void getOwnerTransactionList_ExceptionHandling() {
         // Setup
         String ownerId = "ownerId";
         String authorizationHeader = "Bearer validToken";
@@ -59,7 +59,7 @@ public class TransactionControllerTest {
     }
 
     @Test
-    public void validateRequest_FailsOnAuthService() {
+    void validateRequest_FailsOnAuthService() {
         // Setup
         String ownerId = "ownerId";
         String ownerType = OwnerTypes.BOTH.getType();
@@ -76,7 +76,7 @@ public class TransactionControllerTest {
     }
 
     @Test
-    public void validateRequest_FailsOnUserService() {
+    void validateRequest_FailsOnUserService() {
         // Setup
         String ownerId = "ownerId";
         String ownerType = OwnerTypes.BOTH.getType();
@@ -94,7 +94,7 @@ public class TransactionControllerTest {
     }
 
     @Test
-    public void validateRequest_PassesAllChecks() {
+    void validateRequest_PassesAllChecks() {
         // Setup
         String ownerId = "ownerId";
         String ownerType = OwnerTypes.BOTH.getType();
@@ -112,7 +112,7 @@ public class TransactionControllerTest {
     }
 
     @Test
-    public void getTransactionById_ValidIdNotFound() {
+    void getTransactionById_ValidIdNotFound() {
         // Setup
         String id = UUID.randomUUID().toString();
         String authorizationHeader = "Bearer validToken";
@@ -126,7 +126,7 @@ public class TransactionControllerTest {
     }
 
     @Test
-    public void getTransactionById_ValidIdFound() {
+    void getTransactionById_ValidIdFound() {
         // Setup
         String id = UUID.randomUUID().toString();
         String authorizationHeader = "Bearer validToken";
@@ -145,7 +145,7 @@ public class TransactionControllerTest {
     }
 
     @Test
-    public void getOwnerTransactionList_ValidRequest() {
+    void getOwnerTransactionList_ValidRequest() {
         // Setup
         String ownerId = "ownerId";
         String authorizationHeader = "Bearer validToken";
@@ -164,7 +164,7 @@ public class TransactionControllerTest {
     }
 
     @Test
-    public void getOwnerTransactionList_EmptyList() {
+    void getOwnerTransactionList_EmptyList() {
         // Setup
         String ownerId = "ownerId";
         String authorizationHeader = "Bearer validToken";

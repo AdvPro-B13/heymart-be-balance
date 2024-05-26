@@ -1,11 +1,9 @@
 package com.heymart.balance.controller;
 
-import com.heymart.balance.dto.TransactionDTO;
 import com.heymart.balance.enums.BalanceActions;
 import com.heymart.balance.enums.OwnerTypes;
 import com.heymart.balance.model.Transaction;
 import com.heymart.balance.service.AuthServiceClient;
-import com.heymart.balance.service.BalanceService;
 import com.heymart.balance.service.TransactionService;
 import com.heymart.balance.service.UserServiceClient;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -18,7 +18,7 @@ import java.util.concurrent.CompletableFuture;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class BalanceControllerTest {
+class BalanceControllerTest {
 
     @Mock
     private AuthServiceClient authServiceClient;
@@ -33,12 +33,12 @@ public class BalanceControllerTest {
     private BalanceController balanceController;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
     }
 
     @Test
-    public void getSupermarketBalance_AuthorizationFails() {
+    void getSupermarketBalance_AuthorizationFails() {
         // Setup
         String supermarketId = "123";
         String authorizationHeader = "Bearer invalidToken";
@@ -53,7 +53,7 @@ public class BalanceControllerTest {
     }
 
     @Test
-    public void getSupermarketBalance_NotFound() {
+    void getSupermarketBalance_NotFound() {
         // Setup
         String supermarketId = "123";
         String authorizationHeader = "Bearer validToken";
@@ -70,7 +70,7 @@ public class BalanceControllerTest {
     }
 
     @Test
-    public void postCreateSupermarketBalance_ValidRequest() {
+    void postCreateSupermarketBalance_ValidRequest() {
         // Setup
         String supermarketId = "123";
         String authorizationHeader = "Bearer validToken";
@@ -89,7 +89,7 @@ public class BalanceControllerTest {
     }
 
     @Test
-    public void postCreateSupermarketBalance_AuthorizationFails() {
+    void postCreateSupermarketBalance_AuthorizationFails() {
         // Setup
         String supermarketId = "123";
         String authorizationHeader = "Bearer invalidToken";
@@ -104,7 +104,7 @@ public class BalanceControllerTest {
     }
 
     @Test
-    public void getUserBalance_NotFound() {
+    void getUserBalance_NotFound() {
         // Setup
         String userId = "user123";
         String authorizationHeader = "Bearer validToken";
@@ -121,7 +121,7 @@ public class BalanceControllerTest {
     }
 
     @Test
-    public void getUserBalance_AuthorizationFails() {
+    void getUserBalance_AuthorizationFails() {
         // Setup
         String userId = "user123";
         String authorizationHeader = "Bearer invalidToken";
@@ -136,7 +136,7 @@ public class BalanceControllerTest {
     }
 
     @Test
-    public void putTopupBalance_Success() {
+    void putTopupBalance_Success() {
         // Setup
         String ownerId = "owner123";
         double amount = 50.0;
@@ -157,7 +157,7 @@ public class BalanceControllerTest {
     }
 
     @Test
-    public void putTopupBalance_AuthorizationFails() {
+    void putTopupBalance_AuthorizationFails() {
         // Setup
         String ownerId = "owner123";
         double amount = 50.0;
@@ -173,7 +173,7 @@ public class BalanceControllerTest {
     }
 
     @Test
-    public void putWithdrawBalance_NotEnoughFunds() {
+    void putWithdrawBalance_NotEnoughFunds() {
         // Setup
         String ownerId = "owner123";
         double amount = 150.0; // Attempt to withdraw more than available

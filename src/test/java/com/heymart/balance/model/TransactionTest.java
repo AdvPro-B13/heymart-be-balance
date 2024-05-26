@@ -9,7 +9,6 @@ import java.util.UUID;
 import java.util.Date;
 
 class TransactionTest {
-    Transaction transaction;
 
     @Test
     void testTransactionGettersAndSetters() {
