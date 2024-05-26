@@ -40,7 +40,7 @@ class AmountDTOTest {
 
         assertThat(violations).hasSize(1);
         ConstraintViolation<AmountDTO> violation = violations.iterator().next();
-        assertThat(violation.getPropertyPath().toString()).hasToString("amount");
+        assertThat(violation.getPropertyPath()).hasToString("amount");
         assertThat(violation.getMessage()).hasToString("The amount must be positive");
     }
 

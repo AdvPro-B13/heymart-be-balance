@@ -37,7 +37,7 @@ class TransactionDTOTest {
 
         assertThat(violations).hasSize(1);
         ConstraintViolation<TransactionDTO> violation = violations.iterator().next();
-        assertThat(violation.getPropertyPath().toString()).hasToString("amount");
+        assertThat(violation.getPropertyPath()).hasToString("amount");
         assertThat(violation.getMessage()).hasToString("The amount must be greater than 0");
     }
 
@@ -49,7 +49,7 @@ class TransactionDTOTest {
 
         assertThat(violations).hasSize(1);
         ConstraintViolation<TransactionDTO> violation = violations.iterator().next();
-        assertThat(violation.getPropertyPath().toString()).hasToString("transactionType");
+        assertThat(violation.getPropertyPath()).hasToString("transactionType");
         assertThat(violation.getMessage()).hasToString("Transaction type cannot be null");
     }
 
@@ -61,7 +61,7 @@ class TransactionDTOTest {
 
         assertThat(violations).hasSize(1);
         ConstraintViolation<TransactionDTO> violation = violations.iterator().next();
-        assertThat(violation.getPropertyPath().toString()).hasToString("ownerType");
+        assertThat(violation.getPropertyPath()).hasToString("ownerType");
         assertThat(violation.getMessage()).hasToString("Owner type cannot be null");
     }
 

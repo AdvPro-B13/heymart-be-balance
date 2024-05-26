@@ -37,7 +37,7 @@ class CheckoutDTOTest {
 
         assertThat(violations).hasSize(1);
         ConstraintViolation<CheckoutDTO> violation = violations.iterator().next();
-        assertThat(violation.getPropertyPath().toString()).hasToString("amount");
+        assertThat(violation.getPropertyPath()).hasToString("amount");
         assertThat(violation.getMessage()).hasToString("The amount must be greater than 0");
     }
 
@@ -49,7 +49,7 @@ class CheckoutDTOTest {
 
         assertThat(violations).hasSize(1);
         ConstraintViolation<CheckoutDTO> violation = violations.iterator().next();
-        assertThat(violation.getPropertyPath().toString()).hasToString("supermarketId");
+        assertThat(violation.getPropertyPath()).hasToString("supermarketId");
         assertThat(violation.getMessage()).hasToString("Transaction supermarketId cannot be null");
     }
 
@@ -61,7 +61,7 @@ class CheckoutDTOTest {
 
         assertThat(violations).hasSize(1);
         ConstraintViolation<CheckoutDTO> violation = violations.iterator().next();
-        assertThat(violation.getPropertyPath().toString()).hasToString("userId");
+        assertThat(violation.getPropertyPath()).hasToString("userId");
         assertThat(violation.getMessage()).hasToString("Transaction userId cannot be null");
     }
 
