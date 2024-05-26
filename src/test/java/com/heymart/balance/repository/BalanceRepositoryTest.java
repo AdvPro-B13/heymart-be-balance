@@ -16,12 +16,12 @@ import static org.junit.jupiter.api.Assertions.*;
 class BalanceRepositoryTest {
     @Autowired
     private BalanceRepository balanceRepository;
-    private UUID ownerId;
+    private String ownerId;
     private Balance.OwnerType ownerType;
 
     @BeforeEach()
     void setup() {
-        ownerId = UUID.randomUUID();
+        ownerId = UUID.randomUUID().toString();
         ownerType = Balance.OwnerType.USER;
     }
 
@@ -52,7 +52,7 @@ class BalanceRepositoryTest {
 
     @Test
     void testFindByOwnerIdNotFound() {
-        UUID randomId = UUID.randomUUID();
+        String randomId = UUID.randomUUID().toString();
 
         Optional<Balance> target = balanceRepository.findByOwnerId(randomId);
         assertTrue(target.isEmpty());
@@ -71,7 +71,7 @@ class BalanceRepositoryTest {
 
     @Test
     void testFindByIdNotFound() {
-        UUID randomId = UUID.randomUUID();
+        String randomId = UUID.randomUUID().toString();
         Optional<Balance> emptyOptional = balanceRepository.findByOwnerId(randomId);
 
         assertTrue(emptyOptional.isEmpty());

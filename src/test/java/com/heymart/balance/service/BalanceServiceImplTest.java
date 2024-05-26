@@ -30,7 +30,7 @@ class BalanceServiceImplTest {
     @Test
     void createBalance_shouldCreateNewBalance() {
         UUID id = UUID.randomUUID();
-        UUID ownerId = UUID.randomUUID();
+        String ownerId = UUID.randomUUID().toString();
         Balance.OwnerType ownerType = Balance.OwnerType.USER;
         Balance dummy = new Balance(ownerId, ownerType);
         dummy.setId(id);
@@ -51,7 +51,7 @@ class BalanceServiceImplTest {
 
     @Test
     void createBalance_shouldThrowExceptionIfBalanceExists() {
-        UUID ownerId = UUID.randomUUID();
+        String ownerId = UUID.randomUUID().toString();
         Balance existingBalance = new Balance(ownerId, Balance.OwnerType.USER);
 
         doReturn(Optional.of(existingBalance)).when(balanceRepository).findByOwnerId(ownerId);
@@ -63,7 +63,7 @@ class BalanceServiceImplTest {
     @Test
     void topUp_shouldIncreaseBalanceAndCreateTransaction() {
         UUID id = UUID.randomUUID();
-        UUID ownerId = UUID.randomUUID();
+        String ownerId = UUID.randomUUID().toString();
         double initialAmount = 100.0;
         double topUpAmount = 50.0;
         Balance balance = new Balance(ownerId, Balance.OwnerType.USER);
@@ -86,7 +86,7 @@ class BalanceServiceImplTest {
 
     @Test
     void topup_shouldThrowExceptionIfNotFound() {
-        UUID ownerId = UUID.randomUUID();
+        String ownerId = UUID.randomUUID().toString();
         double withdrawAmount = 100.0;
 
         when(balanceRepository.findByOwnerId(ownerId)).thenReturn(Optional.empty());
@@ -100,7 +100,7 @@ class BalanceServiceImplTest {
     @Test
     void withdraw_shouldDecreaseBalanceAndCreateTransaction() {
         UUID id = UUID.randomUUID();
-        UUID ownerId = UUID.randomUUID();
+        String ownerId = UUID.randomUUID().toString();
         double initialAmount = 100.0;
         double withdrawAmount = 50.0;
         Balance balance = new Balance(ownerId, Balance.OwnerType.USER);
@@ -122,7 +122,7 @@ class BalanceServiceImplTest {
 
     @Test
     void withdraw_shouldThrowExceptionIfInsufficientFunds() {
-        UUID ownerId = UUID.randomUUID();
+        String ownerId = UUID.randomUUID().toString();
         double initialAmount = 50.0;
         double withdrawAmount = 100.0;
         Balance balance = new Balance(ownerId, Balance.OwnerType.USER);
@@ -138,7 +138,7 @@ class BalanceServiceImplTest {
 
     @Test
     void withdraw_shouldThrowExceptionIfNotFound() {
-        UUID ownerId = UUID.randomUUID();
+        String ownerId = UUID.randomUUID().toString();
         double withdrawAmount = 100.0;
 
         when(balanceRepository.findByOwnerId(ownerId)).thenReturn(Optional.empty());
@@ -151,8 +151,8 @@ class BalanceServiceImplTest {
 
     @Test
     void checkout_shouldProcessTransactionBetweenUserAndSupermarket() {
-        UUID userId = UUID.randomUUID();
-        UUID supermarketId = UUID.randomUUID();
+        String userId = UUID.randomUUID().toString();
+        String supermarketId = UUID.randomUUID().toString();
         double initialUserAmount = 100.0;
         double initialSupermarketAmount = 50.0;
         double checkoutAmount = 40.0;
@@ -177,15 +177,15 @@ class BalanceServiceImplTest {
         assertEquals(initialUserAmount - checkoutAmount, updatedUserBalance.getBalance());
         assertEquals(initialSupermarketAmount + checkoutAmount, updatedSupermarketBalance.getBalance());
 
-        verify(balanceRepository, times(6)).findByOwnerId(any(UUID.class)); // Called twice in service methods and twice in reload
+        verify(balanceRepository, times(6)).findByOwnerId(any(String.class)); // Called twice in service methods and twice in reload
         verify(balanceRepository, times(2)).save(any(Balance.class));
         verify(transactionService, times(2)).createTransaction(any(Transaction.class));
     }
 
     @Test
     void checkout_ShouldThrowErrorIfNotFound() {
-        UUID ownerId1 = UUID.randomUUID();
-        UUID ownerId2 = UUID.randomUUID();
+        String ownerId1 = UUID.randomUUID().toString();
+        String ownerId2 = UUID.randomUUID().toString();
         double checkoutAmount = 100.0;
 
         when(balanceRepository.findByOwnerId(ownerId1)).thenReturn(Optional.empty());
@@ -200,7 +200,7 @@ class BalanceServiceImplTest {
     @Test
     void testFindByIdFound() {
         UUID id = UUID.randomUUID();
-        UUID ownerId = UUID.randomUUID();
+        String ownerId = UUID.randomUUID().toString();
         Balance.OwnerType ownerType = Balance.OwnerType.USER;
         Balance dummy = new Balance(ownerId, ownerType);
         dummy.setId(id);
@@ -227,14 +227,14 @@ class BalanceServiceImplTest {
     @Test
     void testFindByOwnerIdFound() {
         UUID id = UUID.randomUUID();
-        UUID ownerId = UUID.randomUUID();
+        String ownerId = UUID.randomUUID().toString();
         Balance.OwnerType ownerType = Balance.OwnerType.USER;
         Balance dummy = new Balance(ownerId, ownerType);
         dummy.setId(id);
 
         doReturn(Optional.of(dummy))
-                .when(balanceRepository).findById(ownerId);
-        Optional<Balance> foundBalance = balanceService.findById(ownerId).join();
+                .when(balanceRepository).findByOwnerId(ownerId);
+        Optional<Balance> foundBalance = balanceService.findByOwnerId(ownerId).join();
 
         assertTrue(foundBalance.isPresent());
         assertEquals(foundBalance.get().getOwnerId(), ownerId);
@@ -242,7 +242,7 @@ class BalanceServiceImplTest {
 
     @Test
     void testFindByOwnerIdNotFound() {
-        UUID id = UUID.randomUUID();
+        String id = UUID.randomUUID().toString();
 
         doReturn(Optional.empty())
                 .when(balanceRepository).findByOwnerId(id);

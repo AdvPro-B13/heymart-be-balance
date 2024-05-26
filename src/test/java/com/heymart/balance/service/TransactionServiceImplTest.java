@@ -35,13 +35,13 @@ class TransactionServiceImplTest {
         Transaction.OwnerType supermarketType = Transaction.OwnerType.SUPERMARKET;
         Transaction.OwnerType userType = Transaction.OwnerType.USER;
 
-        UUID ownerId1 = UUID.randomUUID();
+        String ownerId1 = UUID.randomUUID().toString();
         Date transactionDate1 = new Date();
         double amount1 = 200.00;
         Transaction transaction1 = new Transaction(ownerId1, userType, transactionDate1, amount1, withdrawalType);
         transactions.add(transaction1);
 
-        UUID ownerId2 = UUID.randomUUID();
+        String ownerId2 = UUID.randomUUID().toString();
         Date transactionDate2 = new Date();
         double amount2 = 100.00;
         Transaction transaction2 = new Transaction(ownerId2, supermarketType, transactionDate2, amount2, topupType);

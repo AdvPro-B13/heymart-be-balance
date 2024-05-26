@@ -23,14 +23,14 @@ class TransactionRepositoryTest {
     private TransactionRepository transactionRepository;
     @Autowired
     private BalanceRepository balanceRepository;
-    private UUID ownerId;
+    private String ownerId;
     private Transaction transaction;
     private Balance balance;
 
     @BeforeEach
     @Transactional
     void setUp() {
-        ownerId = UUID.randomUUID();
+        ownerId = UUID.randomUUID().toString();
         Balance newBalance = new Balance(ownerId, Balance.OwnerType.USER);
         balanceRepository.save(newBalance);
         Optional<Balance> target = balanceRepository.findByOwnerId(ownerId);

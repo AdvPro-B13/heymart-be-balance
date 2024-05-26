@@ -13,7 +13,7 @@ class BalanceTest {
     @Test
     void testBalanceSettersAndGetters() {
         UUID balanceId = UUID.randomUUID();
-        UUID ownerId = UUID.randomUUID();
+        String ownerId = UUID.randomUUID().toString();
         Balance.OwnerType ownerType = Balance.OwnerType.USER;
         Double amount = 40.0;
 
@@ -40,7 +40,7 @@ class BalanceTest {
 
     @Test
     void testBalanceConstructor() {
-        UUID ownerId = UUID.randomUUID();
+        String ownerId = UUID.randomUUID().toString();
         Balance.OwnerType ownerType = Balance.OwnerType.USER;
 
         Balance newConstructedBalance = new Balance(ownerId, ownerType);

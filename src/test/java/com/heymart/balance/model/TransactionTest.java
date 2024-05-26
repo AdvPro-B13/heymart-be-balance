@@ -14,7 +14,7 @@ class TransactionTest {
     @Test
     void testTransactionGettersAndSetters() {
         UUID transactionId = UUID.randomUUID();
-        UUID ownerId = UUID.randomUUID();
+        String ownerId = UUID.randomUUID().toString();
         Date transactionDate = new Date();
         double amount = 150.75;
         Transaction.TransactionType transactionType = Transaction.TransactionType.TOPUP;
@@ -44,7 +44,7 @@ class TransactionTest {
 
     @Test
     void testTransactionConstructor() {
-        UUID ownerId = UUID.randomUUID();
+        String ownerId = UUID.randomUUID().toString();
         Date transactionDate = new Date();
         double amount = 200.00;
         Transaction.TransactionType withdrawalType = Transaction.TransactionType.WITHDRAWAL;

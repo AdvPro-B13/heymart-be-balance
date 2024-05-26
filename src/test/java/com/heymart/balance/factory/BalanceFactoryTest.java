@@ -17,8 +17,8 @@ class BalanceFactoryTest {
 
     @Test
     void testCreateMatchingBalance() {
-        UUID random1 = UUID.randomUUID();
-        UUID random2 = UUID.randomUUID();
+        String random1 = UUID.randomUUID().toString();
+        String random2 = UUID.randomUUID().toString();
         Balance newUserBalance = userBalanceFactory.createBalance(random1, userType);
         Balance newSuperBalance = supermarketBalanceFactory.createBalance(random2, superType);
 
@@ -28,8 +28,8 @@ class BalanceFactoryTest {
 
     @Test
     void testCreateMismatchBalance() {
-        UUID random1 = UUID.randomUUID();
-        UUID random2 = UUID.randomUUID();
+        String random1 = UUID.randomUUID().toString();
+        String random2 = UUID.randomUUID().toString();
 
         assertThrows(IllegalArgumentException.class, () -> userBalanceFactory.createBalance(random1, superType));
         assertThrows(IllegalArgumentException.class, () -> supermarketBalanceFactory.createBalance(random2, userType));
