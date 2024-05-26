@@ -184,20 +184,6 @@ public class BalanceController {
         }
     }
 
-    @GetMapping("/testing-valid")
-    public ResponseEntity<String> testValid(
-            @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
-        if (!authServiceClient.verifyUserAuthorization(BalanceActions.USER_BALANCE_READ.getValue(), authorizationHeader)) {
-            return ResponseEntity.notFound().build();
-        }
-
-        if (!userServiceClient.verifyOwnerIdIsOwner(authorizationHeader, "1", OwnerTypes.USER.getType())) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        return ResponseEntity.ok().build();
-    }
-
     public boolean validateRequest(String ownerId, String ownerType,
                                    String token, String action) {
         if (!authServiceClient.verifyUserAuthorization(action, token)) {

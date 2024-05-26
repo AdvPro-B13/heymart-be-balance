@@ -1,6 +1,8 @@
 package com.heymart.balance.service;
 
 import com.heymart.balance.dto.UserDTO;
+import com.heymart.balance.exceptions.BalanceNotFoundException;
+import com.heymart.balance.model.Balance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -35,13 +37,15 @@ public class UserServiceClientImpl implements UserServiceClient {
                     entity,
                     UserDTO.class
             );
-            if (OwnerType.equals("supermarket")) {
+            if (OwnerType.equals("Supermarket")) {
                 return ownerId.equals(Objects.requireNonNull(response.getBody()).getSupermarketId());
             }
-            return ownerId.equals(Objects.requireNonNull(response.getBody()).getId());
+            boolean result1 = ownerId.equals(Objects.requireNonNull(response.getBody()).getId());
+            boolean result2 = ownerId.equals(Objects.requireNonNull(response.getBody()).getSupermarketId());
+            return result1 || result2;
         }
         catch(Exception e){
-            return false;
+            throw new BalanceNotFoundException("bnf");
         }
     }
 }

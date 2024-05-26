@@ -59,7 +59,6 @@ public class BalanceServiceImpl implements BalanceService{
         return CompletableFuture.completedFuture(balanceRepository.findByOwnerId(ownerId));
     }
 
-    @Async("taskExecutor")
     @Transactional
     public CompletableFuture<Optional<Balance>> topUp(String ownerId, double amount) {
         Optional<Balance> balance = balanceRepository.findByOwnerId(ownerId);
@@ -83,7 +82,6 @@ public class BalanceServiceImpl implements BalanceService{
 
     }
 
-    @Async("taskExecutor")
     @Transactional
     public CompletableFuture<Optional<Balance>> withdraw(String ownerId, double amount) {
         Optional<Balance> balance = balanceRepository.findByOwnerId(ownerId);
