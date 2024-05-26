@@ -9,5 +9,4 @@ class BalanceApplicationTests {
 	void contextLoads() {
 		BalanceApplication.main(new String[] {});
 	}
-
 }
