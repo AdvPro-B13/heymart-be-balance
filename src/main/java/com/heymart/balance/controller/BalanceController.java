@@ -173,7 +173,6 @@ public class BalanceController {
         if (!validationResult) {
             return CompletableFuture.completedFuture(ResponseEntity.badRequest().build());
         }
-
         try {
             return service.withdraw(ownerId, amountDTO.getAmount())
                     .thenApply(balance -> balance.map(ResponseEntity::ok)

@@ -1,5 +1,6 @@
 package com.heymart.balance.controller;
 
+import com.heymart.balance.dto.AmountDTO;
 import com.heymart.balance.model.Balance;
 import com.heymart.balance.service.AuthServiceClient;
 import com.heymart.balance.service.BalanceService;
@@ -100,5 +101,94 @@ public class BalanceControllerTest {
         // Assert
         ResponseEntity<Balance> response = future.join();
         assertEquals(400, response.getStatusCodeValue());
+    }
+
+    @Test
+    public void getUserBalance_NotFound() {
+        // Setup
+        String userId = "user123";
+        String authorizationHeader = "Bearer validToken";
+        when(authServiceClient.verifyUserAuthorization(anyString(), eq(authorizationHeader))).thenReturn(true);
+        when(userServiceClient.verifyOwnerIdIsOwner(anyString(), eq(userId), anyString())).thenReturn(true);
+        when(balanceService.findByOwnerId(userId)).thenReturn(CompletableFuture.completedFuture(Optional.empty()));
+
+        // Act
+        CompletableFuture<ResponseEntity<Balance>> future = balanceController.getUserBalance(userId, authorizationHeader);
+
+        // Assert
+        ResponseEntity<Balance> response = future.join();
+        assertEquals(404, response.getStatusCodeValue());
+    }
+
+    @Test
+    public void getUserBalance_AuthorizationFails() {
+        // Setup
+        String userId = "user123";
+        String authorizationHeader = "Bearer invalidToken";
+        when(authServiceClient.verifyUserAuthorization(anyString(), eq(authorizationHeader))).thenReturn(false);
+
+        // Act
+        CompletableFuture<ResponseEntity<Balance>> future = balanceController.getUserBalance(userId, authorizationHeader);
+
+        // Assert
+        ResponseEntity<Balance> response = future.join();
+        assertEquals(400, response.getStatusCodeValue());
+    }
+
+    @Test
+    public void putTopupBalance_Success() {
+        // Setup
+        String ownerId = "owner123";
+        double amount = 50.0;
+        Balance balance = new Balance();
+        balance.setAmount(100.0); // Assume existing balance
+        String authorizationHeader = "Bearer validToken";
+        when(authServiceClient.verifyUserAuthorization(anyString(), eq(authorizationHeader))).thenReturn(true);
+        when(userServiceClient.verifyOwnerIdIsOwner(anyString(), eq(ownerId), anyString())).thenReturn(true);
+        doReturn(CompletableFuture.completedFuture(Optional.of(balance))).when(balanceService).topUp(any(String.class), any(double.class));
+
+        // Act
+        CompletableFuture<ResponseEntity<Balance>> future = balanceController.putTopupBalance(ownerId, new AmountDTO(), authorizationHeader);
+
+        // Assert
+        ResponseEntity<Balance> response = future.join();
+        assertEquals(200, response.getStatusCodeValue());
+        assertNotNull(response.getBody());
+    }
+
+    @Test
+    public void putTopupBalance_AuthorizationFails() {
+        // Setup
+        String ownerId = "owner123";
+        double amount = 50.0;
+        String authorizationHeader = "Bearer invalidToken";
+        when(authServiceClient.verifyUserAuthorization(anyString(), eq(authorizationHeader))).thenReturn(false);
+
+        // Act
+        CompletableFuture<ResponseEntity<Balance>> future = balanceController.putTopupBalance(ownerId, new AmountDTO(), authorizationHeader);
+
+        // Assert
+        ResponseEntity<Balance> response = future.join();
+        assertEquals(400, response.getStatusCodeValue());
+    }
+
+    @Test
+    public void putWithdrawBalance_NotEnoughFunds() {
+        // Setup
+        String ownerId = "owner123";
+        double amount = 150.0; // Attempt to withdraw more than available
+        Balance balance = new Balance();
+        balance.setAmount(100.0); // Current balance
+        String authorizationHeader = "Bearer validToken";
+        when(authServiceClient.verifyUserAuthorization(anyString(), eq(authorizationHeader))).thenReturn(true);
+        when(userServiceClient.verifyOwnerIdIsOwner(anyString(), eq(ownerId), anyString())).thenReturn(true);
+        when(balanceService.withdraw(any(String.class), any(double.class))).thenThrow(new IllegalArgumentException());
+
+        // Act
+        CompletableFuture<ResponseEntity<Balance>> future = balanceController.putWithdrawBalance(ownerId, new AmountDTO(), authorizationHeader);
+
+        // Assert
+        ResponseEntity<Balance> response = future.join();
+        assertEquals(400, response.getStatusCodeValue()); // Assuming that the API returns a bad request or similar error on failure
     }
 }

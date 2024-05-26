@@ -13,7 +13,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.ResponseEntity;
 
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -109,5 +109,75 @@ public class TransactionControllerTest {
 
         // Assert
         assertTrue(result);
+    }
+
+    @Test
+    public void getTransactionById_ValidIdNotFound() {
+        // Setup
+        String id = UUID.randomUUID().toString();
+        String authorizationHeader = "Bearer validToken";
+        when(transactionService.findById(UUID.fromString(id))).thenReturn(CompletableFuture.completedFuture(Optional.empty()));
+
+        // Act
+        CompletableFuture<ResponseEntity<Transaction>> result = transactionController.getTransactionById(id, authorizationHeader);
+
+        // Assert
+        assertEquals(404, result.join().getStatusCodeValue(), "Should return 404 Not Found when transaction is not found");
+    }
+
+    @Test
+    public void getTransactionById_ValidIdFound() {
+        // Setup
+        String id = UUID.randomUUID().toString();
+        String authorizationHeader = "Bearer validToken";
+        Transaction transaction = new Transaction();
+        transaction.setOwnerId(id);// Assuming constructor or setters to set up a mock transaction
+        when(transactionService.findById(UUID.fromString(id))).thenReturn(CompletableFuture.completedFuture(Optional.of(transaction)));
+        when(authServiceClient.verifyUserAuthorization(anyString(), anyString())).thenReturn(true);
+        when(userServiceClient.verifyOwnerIdIsOwner(anyString(), anyString(), anyString())).thenReturn(true);
+
+        // Act
+        CompletableFuture<ResponseEntity<Transaction>> result = transactionController.getTransactionById(id, authorizationHeader);
+
+        // Assert
+        assertEquals(200, result.join().getStatusCodeValue(), "Should return 200 OK when transaction is found");
+        assertNotNull(result.join().getBody(), "Transaction body should not be null");
+    }
+
+    @Test
+    public void getOwnerTransactionList_ValidRequest() {
+        // Setup
+        String ownerId = "ownerId";
+        String authorizationHeader = "Bearer validToken";
+        List<Transaction> transactionList = Arrays.asList(new Transaction(), new Transaction());
+        when(authServiceClient.verifyUserAuthorization(BalanceActions.TRANSACTION_READ.getValue(), authorizationHeader)).thenReturn(true);
+        when(userServiceClient.verifyOwnerIdIsOwner(authorizationHeader, ownerId, OwnerTypes.BOTH.getType())).thenReturn(true);
+        when(transactionService.findByOwnerId(ownerId)).thenReturn(CompletableFuture.completedFuture(transactionList));
+
+        // Act
+        CompletableFuture<ResponseEntity<List<Transaction>>> future = transactionController.getOwnerTransactionList(ownerId, authorizationHeader);
+
+        // Assert
+        ResponseEntity<List<Transaction>> response = future.join();
+        assertEquals(200, response.getStatusCodeValue(), "Should return 200 OK when transactions are found");
+        assertEquals(2, response.getBody().size(), "Should return the correct number of transactions");
+    }
+
+    @Test
+    public void getOwnerTransactionList_EmptyList() {
+        // Setup
+        String ownerId = "ownerId";
+        String authorizationHeader = "Bearer validToken";
+        when(authServiceClient.verifyUserAuthorization(BalanceActions.TRANSACTION_READ.getValue(), authorizationHeader)).thenReturn(true);
+        when(userServiceClient.verifyOwnerIdIsOwner(authorizationHeader, ownerId, OwnerTypes.BOTH.getType())).thenReturn(true);
+        when(transactionService.findByOwnerId(ownerId)).thenReturn(CompletableFuture.completedFuture(Collections.emptyList()));
+
+        // Act
+        CompletableFuture<ResponseEntity<List<Transaction>>> future = transactionController.getOwnerTransactionList(ownerId, authorizationHeader);
+
+        // Assert
+        ResponseEntity<List<Transaction>> response = future.join();
+        assertEquals(200, response.getStatusCodeValue(), "Should return 200 OK even if the list is empty");
+        assertTrue(response.getBody().isEmpty(), "Transaction list should be empty");
     }
 }

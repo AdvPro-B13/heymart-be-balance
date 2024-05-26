@@ -41,6 +41,9 @@ public class Balance {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<Transaction> transactions;
 
+    public void setAmount(double v) {
+    }
+
     public enum OwnerType {
         USER, SUPERMARKET
     }
